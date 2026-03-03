@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chapter 2: B-Tree Basics</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;max-width:960px;margin:0 auto;padding:20px;line-height:1.6;color:#222;background:#fafafa}
+    h1{color:#1a365d;border-bottom:3px solid #3182ce;padding-bottom:10px}
+    h2{color:#2c5282;margin-top:2em;border-left:4px solid #3182ce;padding-left:12px}
+    h3{color:#2b6cb0}
+    pre{background:#edf2f7;padding:12px;border-radius:6px;overflow-x:auto;font-size:0.9em}
+    code{background:#edf2f7;padding:2px 6px;border-radius:3px;font-size:0.9em}
+    table{border-collapse:collapse;width:100%;margin:1em 0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+    th,td{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}
+    th{background:#edf2f7;font-weight:600}
+    tr:nth-child(even){background:#f7fafc}
+    .korean-summary{background:#fff;border:1px solid #cbd5e0;border-radius:8px;padding:20px;margin-bottom:2em;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+    .korean-summary h1{font-size:1.5em;margin-top:0}
+    .original-text{background:#fff;border:1px solid #e2e8f0;padding:20px;margin-top:2em;border-radius:8px}
+    .original-text h2{color:#553c9a;border-left-color:#805ad5}
+    nav{background:#2c5282;color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+    nav a{color:#fff;text-decoration:none;padding:6px 12px;background:#3182ce;border-radius:4px;margin:0 4px}
+    nav a:hover{background:#2c5282}
+    .search-box{background:#fff;border-radius:4px;padding:6px 12px;border:none}
+    .search-box::placeholder{color:#a0aec0}
+    footer{text-align:center;margin-top:40px;color:#718096;font-size:0.9em}
+    .mermaid{background:#fff;padding:10px;border-radius:8px;margin:10px 0}
+    blockquote{background:#f7fafc;border-left:4px solid #805ad5;margin:1em 0;padding:10px 15px;color:#4a5568}
+  </style>
+</head>
+<body>
+  <nav>
+    <div>
+      <a href="index.html">← Home</a>
+      <a href="chapter-01.html">◀ Prev</a>
+      <a href="chapter-03.html">Next ▶</a>
+    </div>
+    <input type="text" class="search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
+  </nav>
+
+  <div class="korean-summary">
+    <h1>2장 - B-트리 개요</h1>
+    <p><strong>날짜:</strong> 2026-02-10</p>
+
+    <h2>개요</h2>
+    <p>B-트리(B-Tree)는 데이터베이스와 파일 시스템에서 널리 사용되는 자가-균형 이진 탐색 트리의 일반화된 형태입니다. 대규모 데이터셋을 효율적으로 저장하고 검색하기 위해 설계되었습니다.</p>
+
+    <h2>핵심 개념</h2>
+
+    <h3>1. B-트리의 정의</h3>
+    <ul>
+      <li><strong>균형 트리</strong>: 모든 리프 노드가 동일한 깊이에 있어 검색 성능이 균일합니다</li>
+      <li><strong>다중 자식</strong>: 각 노드는 여러 개의 자식 노드를 가질 수 있습니다</li>
+      <li><strong>정렬된 키</strong>: 각 노드 내에서 키는 정렬된 순서로 유지됩니다</li>
+    </ul>
+
+    <h3>2. B-트리의 속성</h3>
+    <ul>
+      <li><strong>차수(Order) m</strong>: 각 노드는 최대 m개의 자식을 가질 수 있습니다</li>
+      <li><strong>최소 키 개수</strong>: 루트 제외 모든 노드는 최소 ⌈m/2⌉ - 1개의 키를 포함합니다</li>
+      <li><strong>최대 키 개수</strong>: 각 노드는 최대 m - 1개의 키를 포함합니다</li>
+      <li><strong>leaf 노드</strong>: 데이터 포인터를 직접 포함합니다</li>
+    </ul>
+
+    <h3>3. 노드 구조</h3>
+    <pre>[key1, key2, ..., keyN] -> [child1, child2, ..., childN+1]</pre>
+    <ul>
+      <li>각 키는 left subtree와 right subtree를 분리합니다</li>
+      <li>데이터 값은 리프 노드에만 저장됩니다</li>
+    </ul>
+
+    <h2>B-트리의 장점</h2>
+    <table>
+      <tr><th>장점</th><th>설명</th></tr>
+      <tr><td><strong>균형 보장</strong></td><td>항상 균형잡힌 구조로 O(log N) 검색 성능 보장</td></tr>
+      <tr><td><strong>디스크 I/O 효율</strong></td><td>한 번의 노드 접근으로 여러 키를 검토 가능</td></tr>
+      <tr><td><strong>범위 쿼리 효율</strong></td><td>정렬된 순서로 인해 범위 쿼리가 효율적</td></tr>
+      <tr><td><strong>삽입/삭제 효율</strong></td><td>자가-균형 메커니즘으로 O(log N) 성능 유지</td></tr>
+    </table>
+
+    <h2>주요 연산</h2>
+
+    <h3>검색 (Search)</h3>
+    <ol>
+      <li>루트에서 시작하여 적절한 키를 찾습니다</li>
+      <li>찾은 키보다 작으면 left subtree, 크면 right subtree로 이동</li>
+      <li>리프 노드까지 재귀적으로 진행</li>
+    </ol>
+
+    <h3>삽입 (Insertion)</h3>
+    <ol>
+      <li>삽입할 위치의 리프 노드를 찾습니다</li>
+      <li>노드가 가득 찬 경우, 중간값을 기준으로 분할합니다</li>
+      <li>분할로 인한 오버플로우가 발생할 때까지 상향식으로 진행됩니다</li>
+    </ol>
+
+    <h3>삭제 (Deletion)</h3>
+    <ol>
+      <li>삭제할 키를 찾습니다</li>
+      <li>내부 노드인 경우 predecessor 또는 successor로 교체합니다</li>
+      <li>언더플로우가 발생하면 형제 노드로부터 차용하거나 병합합니다</li>
+    </ol>
+
+    <h2>실제 응용</h2>
+    <ul>
+      <li><strong>데이터베이스 인덱싱</strong>: MySQL, PostgreSQL 등 관계형 DB의 기본 인덱싱 구조</li>
+      <li><strong>파일 시스템</strong>: NTFS, ext4 등에서 메타데이터 관리</li>
+      <li><strong>NoSQL 데이터베이스</strong>: MongoDB, CouchDB 등에서도 활용</li>
+    </ul>
+
+    <h2>시간 복잡도</h2>
+    <table>
+      <tr><th>연산</th><th>시간 복잡도</th></tr>
+      <tr><td>검색</td><td>O(log N)</td></tr>
+      <tr><td>삽입</td><td>O(log N)</td></tr>
+      <tr><td>삭제</td><td>O(log N)</td></tr>
+      <tr><td>범위 쿼리</td><td>O(log N + K) (K: 결과 개수)</td></tr>
+    </table>
+
+    <hr>
+
+    <h2>B-Tree 삽입 실습 (다이어그램)</h2>
+
+    <h3>1단계: 키 1, 2, 3 삽입</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[1 | 2 | 3]"]
+        style Root fill:#c8e6c9
+    </div>
+    <p>상태: 리프 노드가 최대값 도달</p>
+
+    <h3>2단계: 키 4 삽입 → 리프 노드 분할</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[2]"]
+        Left["[1]"]
+        Right["[3 | 4]"]
+        Root --> Left
+        Root --> Right
+        style Root fill:#fff9c4
+        style Left fill:#c8e6c9
+        style Right fill:#c8e6c9
+    </div>
+
+    <h3>4단계: 키 6 삽입 → 우측 리프 분할</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[2 | 4]"]
+        Left["[1]"]
+        Mid["[3]"]
+        Right["[5 | 6]"]
+        Root --> Left
+        Root --> Mid
+        Root --> Right
+        style Root fill:#e1f5ff
+        style Left fill:#c8e6c9
+        style Mid fill:#c8e6c9
+        style Right fill:#c8e6c9
+    </div>
+
+    <h3>6단계: 키 8 삽입 → 분할 완료</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[2 | 4 | 6]"]
+        L1["[1]"]
+        L2["[3]"]
+        L3["[5]"]
+        L4["[7 | 8]"]
+        Root --> L1
+        Root --> L2
+        Root --> L3
+        Root --> L4
+        style Root fill:#e1f5ff
+        style L1 fill:#c8e6c9
+        style L2 fill:#c8e6c9
+        style L3 fill:#c8e6c9
+        style L4 fill:#c8e6c9
+    </div>
+
+    <hr>
+
+    <h2>B-Tree 삭제 실습 (다이어그램)</h2>
+
+    <h3>초기 상태</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[2 | 4 | 6]"]
+        L1["[1]"]
+        L2["[3]"]
+        L3["[5]"]
+        L4["[7 | 8]"]
+        Root --> L1
+        Root --> L2
+        Root --> L3
+        Root --> L4
+        style Root fill:#e1f5ff
+        style L1 fill:#c8e6c9
+        style L2 fill:#c8e6c9
+        style L3 fill:#c8e6c9
+        style L4 fill:#c8e6c9
+    </div>
+
+    <h3>키 8 삭제 후</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[2 | 4 | 6]"]
+        L1["[1]"]
+        L2["[3]"]
+        L3["[5]"]
+        L4["[7]"]
+        Root --> L1
+        Root --> L2
+        Root --> L3
+        Root --> L4
+        style Root fill:#e1f5ff
+        style L1 fill:#c8e6c9
+        style L2 fill:#c8e6c9
+        style L3 fill:#c8e6c9
+        style L4 fill:#c8e6c9
+    </div>
+
+    <h3>키 7 삭제 → 언더플로우 → 병합</h3>
+    <div class="mermaid">
+    graph TD
+        Root["[2 | 4]"]
+        L1["[1]"]
+        L2["[3]"]
+        L3["[5 | 6]"]
+        Root --> L1
+        Root --> L2
+        Root --> L3
+        style Root fill:#fff9c4
+        style L1 fill:#c8e6c9
+        style L2 fill:#c8e6c9
+        style L3 fill:#c8e6c9
+    </div>
+
+    <h3>최종 상태 (모든 키 삭제 후)</h3>
+    <div class="mermaid">
+    graph TD
+        Root["Empty tree"]
+        style Root fill:#ffccbc
+    </div>
+  </div>
+
+  <div class="original-text">
+    <h2>Original English Text</h2>
+
+    <h3>Chapter 2: B-Tree Basics</h3>
+    <p>In the previous chapter, we separated storage structures in two groups: mutable and immutable ones, and identified immutability as one of the core concepts influencing their design and implementation. Most of the mutable storage structures use an in-place update mechanism. During insert, delete, or update operations, data records are updated directly in their locations in the target file.</p>
+
+    <p>Storage engines often allow multiple versions of the same data record to be present in the database; for example, when using multiversion concurrency control (see "Multiversion Concurrency Control") or slotted page organization (see "Slotted Pages"). For the sake of simplicity, for now we assume that each key is associated only with one data record, which has a unique location.</p>
+
+    <p>One of the most popular storage structures is a B-Tree. Many open source database systems are B-Tree based, and over the years they've proven to cover the majority of use cases.</p>
+
+    <p>B-Trees are not a recent invention: they were introduced by Rudolph Bayer and Edward M. McCreight back in 1971 and gained popularity over the years. By 1979, there were already quite a few variants of B-Trees.</p>
+
+    <h3>Binary Search Trees</h3>
+    <p>A binary search tree (BST) is a sorted in-memory data structure, used for efficient key-value lookups. BSTs consist of multiple nodes. Each tree node is represented by a key, a value associated with this key, and two child pointers (hence the name binary). BSTs start from a single node, called a root node. There can be only one root in the tree.</p>
+
+    <p>Each node splits the search space into left and right subtrees: a node key is greater than any key stored in its left subtree and less than any key stored in its right subtree.</p>
+
+    <h3>Tree Balancing</h3>
+    <p>Insert operations do not follow any specific pattern, and element insertion might lead to the situation where the tree is unbalanced (i.e., one of its branches is longer than the other one). The worst-case scenario is shown in where we end up with a pathological tree, which looks more like a linked list, and instead of desired logarithmic complexity, we get linear.</p>
+
+    <p>The balanced tree is defined as one that has a height of log2 N, where N is the total number of items in the tree, and the difference in height between the two subtrees is not greater than one. Without balancing, we lose performance benefits of the binary search tree structure, and allow insertions and deletions order to determine tree shape.</p>
+
+    <h3>Trees for Disk-Based Storage</h3>
+    <p>As previously mentioned, unbalanced trees have a worst-case complexity of O(N). Balanced trees give us an average O(log2 N). At the same time, due to low fanout (fanout is the maximum allowed number of children per node), we have to perform balancing, relocate nodes, and update pointers rather frequently. Increased maintenance costs make BSTs impractical as on-disk data structures.</p>
+
+    <p>If we wanted to maintain a BST on disk, we'd face several problems. One problem is locality: since elements are added in random order, there's no guarantee that a newly created node is written close to its parent, which means that node child pointers may span across several disk pages.</p>
+
+    <h3>Ubiquitous B-Trees</h3>
+    <p>B-Trees can be thought of as a vast catalog room in the library: you first have to pick the correct cabinet, then the correct shelf in that cabinet, then the correct drawer on the shelf, and then browse through the cards in the drawer to find the one you're searching for. Similarly, a B-Tree builds a hierarchy that helps to navigate and locate the searched items quickly.</p>
+
+    <p>B-Trees build upon the foundation of balanced search trees and are different in that they have higher fanout (have more child nodes) and smaller height.</p>
+
+    <h3>B-Tree Hierarchy</h3>
+    <p>B-Trees consist of multiple nodes. Each node holds up to N keys and N + 1 pointers to the child nodes. These nodes are logically grouped into three groups:</p>
+    <ul>
+      <li><strong>Root node</strong> - This has no parents and is the top of the tree.</li>
+      <li><strong>Leaf nodes</strong> - These are the bottom layer nodes that have no child nodes.</li>
+      <li><strong>Internal nodes</strong> - These are all other nodes, connecting root with leaves.</li>
+    </ul>
+
+    <h3>B+-Trees</h3>
+    <p>We're using the term B-Tree as an umbrella for a family of data structures. A more precise name for the described data structure is B+Tree.</p>
+    <p>B-Trees allow storing values on any level: in root, internal, and leaf nodes. B+-Trees store values only in leaf nodes. Internal nodes store only separator keys used to guide the search algorithm to the associated value stored on the leaf level.</p>
+
+    <h3>Separator Keys</h3>
+    <p>Keys stored in B-Tree nodes are called index entries, separator keys, or divider cells. They split the tree into subtrees (also called branches or subranges), holding corresponding key ranges. Keys are stored in sorted order to allow binary search.</p>
+
+    <h3>B-Tree Lookup Complexity</h3>
+    <p>B-Tree lookup complexity can be viewed from two standpoints: the number of block transfers and the number of comparisons done during the lookup.</p>
+    <p>In terms of number of transfers, the logarithm base is N (number of keys per node). During lookup, at most logK M pages are addressed to find a searched key.</p>
+
+    <h3>B-Tree Node Splits</h3>
+    <p>To insert the value into a B-Tree, we first have to locate the target leaf and find the insertion point. If the target node doesn't have enough room available, we say that the node has overflowed and has to be split in two to fit the new data.</p>
+    <p>Splits are done by allocating the new node, transferring half the elements from the splitting node to it, and adding its first key and pointer to the parent node.</p>
+
+    <h3>B-Tree Node Merges</h3>
+    <p>Deletions are done by first locating the target leaf. When the leaf is located, the key and the value associated with it are removed. If neighboring nodes have too few values, the sibling nodes are merged.</p>
+  </div>
+
+  <footer>
+    <p>Database Internals - Chapter 2 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
+  </footer>
+
+  <script>
+    mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    
+    function searchChapter(query) {
+      if (!query) return;
+      window.find(query, false, false, true, false, true);
+    }
+  </script>
+</body>
+</html>

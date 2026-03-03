@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Database Internals — Blog</title>
+  <style>
+    *{box-sizing:border-box}
+    body{font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;max-width:900px;margin:0 auto;padding:20px;line-height:1.6;color:#222;background:#fafafa}
+    h1{color:#1a365d;border-bottom:3px solid #3182ce;padding-bottom:10px}
+    header{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:24px;margin-bottom:20px;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+    .chapter-list{list-style:none;padding:0}
+    .chapter-item{background:#fff;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin-bottom:12px;transition:box-shadow 0.2s}
+    .chapter-item:hover{box-shadow:0 4px 8px rgba(0,0,0,0.1)}
+    .chapter-item a{color:#2c5282;font-size:1.2em;font-weight:600;text-decoration:none}
+    .chapter-item a:hover{color:#3182ce}
+    .excerpt{color:#718096;font-size:0.95rem;margin-top:8px}
+    .tag{display:inline-block;background:#edf2f7;color:#4a5568;padding:2px 8px;border-radius:4px;font-size:0.8em;margin-right:8px}
+    footer{text-align:center;margin-top:40px;color:#718096;font-size:0.9em}
+    .search-box{width:100%;padding:12px;font-size:1em;border:2px solid #e2e8f0;border-radius:8px;margin-bottom:20px}
+    .search-box:focus{outline:none;border-color:#3182ce}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Database Internals — Chapters</h1>
+    <p>O'Reilly "Database Internals" 책의 챕터별 정리 노트입니다. 한국어 요약과 원문을 함께 제공합니다.</p>
+    <input type="text" class="search-box" placeholder="Search chapters..." onkeyup="filterChapters(this.value)">
+  </header>
+
+  <ul class="chapter-list" id="chapterList">
+    <li class="chapter-item" data-keywords="b-tree basic fundamentals">
+      <a href="chapter-02.html">Chapter 2: B-Tree Basics</a>
+      <div class="excerpt">
+        <span class="tag">기초</span>
+        B-Tree의 기본 개념, 노드 구조, 분할/병합, 검색 알고리즘
+      </div>
+    </li>
+    <li class="chapter-item" data-keywords="file format binary encoding page">
+      <a href="chapter-03.html">Chapter 3: File Formats</a>
+      <div class="excerpt">
+        <span class="tag">파일 포맷</span>
+        바이너리 인코딩, 페이지 구조, 셀과 슬롯 페이지, 버전과 체크섬
+      </div>
+    </li>
+    <li class="chapter-item" data-keywords="implement btree disk overflow">
+      <a href="chapter-04.html">Chapter 4: Implementing BTrees</a>
+      <div class="excerpt">
+        <span class="tag">구현</span>
+        디스크 관점의 B-Tree 구현: 오버플로, 브레드크럼, 리밸런싱, 유지보수
+      </div>
+    </li>
+  </ul>
+
+  <footer>
+    <p>Database Internals - Blog | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
+  </footer>
+
+  <script>
+    function filterChapters(query) {
+      if (!query) {
+        document.querySelectorAll('.chapter-item').forEach(item => item.style.display = 'block');
+        return;
+      }
+      query = query.toLowerCase();
+      document.querySelectorAll('.chapter-item').forEach(item => {
+        const keywords = item.getAttribute('data-keywords');
+        const title = item.querySelector('a').textContent.toLowerCase();
+        if (keywords.includes(query) || title.includes(query)) {
+          item.style.display = 'block';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+  </script>
+</body>
+</html>

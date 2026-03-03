@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 185" style="font-family: Arial, Helvetica, sans-serif; background: #f5f5f5;">
+  <defs>
+    <style>
+      .box { fill: #eeeeee; stroke: #666666; stroke-width: 1.5; }
+      .key { fill: #dddddd; stroke: #888888; stroke-width: 1.5; }
+      .pointer { fill: #e8e8e8; stroke: #999999; stroke-width: 1.5; }
+      .title { fill: #333333; font-size: 14px; font-weight: bold; }
+      .label { fill: #555555; font-size: 11px; }
+      .num { fill: #333333; font-size: 14px; font-weight: bold; }
+    </style>
+  </defs>
+  
+  <!-- Title -->
+  <text x="250" y="20" text-anchor="middle" class="title">Key-Pointer Invariant</text>
+  <text x="250" y="38" text-anchor="middle" class="label">N keys = N+1 pointers</text>
+  
+  <!-- Keys Row -->
+  <rect x="40" y="52" width="50" height="40" rx="3" class="key"/>
+  <text x="65" y="75" text-anchor="middle" class="num">10</text>
+  <text x="65" y="90" text-anchor="middle" class="label">K1</text>
+  
+  <rect x="100" y="52" width="50" height="40" rx="3" class="key"/>
+  <text x="125" y="75" text-anchor="middle" class="num">20</text>
+  <text x="125" y="90" text-anchor="middle" class="label">K2</text>
+  
+  <rect x="160" y="52" width="50" height="40" rx="3" class="key"/>
+  <text x="185" y="75" text-anchor="middle" class="num">30</text>
+  <text x="185" y="90" text-anchor="middle" class="label">K3</text>
+  
+  <!-- Pointers Row -->
+  <rect x="40" y="100" width="55" height="35" rx="3" class="pointer"/>
+  <text x="67" y="120" text-anchor="middle" class="label">&lt;10</text>
+  
+  <rect x="100" y="100" width="55" height="35" rx="3" class="pointer"/>
+  <text x="127" y="120" text-anchor="middle" class="label">10-20</text>
+  
+  <rect x="160" y="100" width="55" height="35" rx="3" class="pointer"/>
+  <text x="187" y="120" text-anchor="middle" class="label">20-30</text>
+  
+  <rect x="220" y="100" width="55" height="35" rx="3" class="pointer"/>
+  <text x="247" y="120" text-anchor="middle" class="label">&gt;30</text>
+  
+  <!-- Equals -->
+  <rect x="290" y="100" width="80" height="35" rx="4" fill="#f0f0f0" stroke="#aaaaaa"/>
+  <text x="330" y="120" text-anchor="middle" class="label">3 keys</text>
+  <text x="330" y="132" text-anchor="middle" class="label" style="font-size:10px;">=</text>
+  
+  <rect x="380" y="100" width="80" height="35" rx="4" fill="#f0f0f0" stroke="#aaaaaa"/>
+  <text x="420" y="120" text-anchor="middle" class="label">4 ptrs</text>
+  <text x="420" y="132" text-anchor="middle" class="label" style="font-size:10px;">N+1</text>
+  
+  <!-- Formula -->
+  <text x="250" y="160" text-anchor="middle" class="label">Formula: N keys always have N+1 child pointers</text>
+</svg>

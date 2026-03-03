@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 330" style="font-family: Arial, Helvetica, sans-serif; background: #f5f5f5;">
+  <defs>
+    <style>
+      .box { fill: #eeeeee; stroke: #666666; stroke-width: 1.5; }
+      .title { fill: #333333; font-size: 14px; font-weight: bold; }
+      .text { fill: #555555; font-size: 11px; }
+      .label { fill: #777777; font-size: 10px; }
+      .arrow { stroke: #999999; stroke-width: 1; }
+    </style>
+  </defs>
+  
+  <!-- Page Header -->
+  <rect x="20" y="15" width="560" height="65" rx="4" class="box"/>
+  <text x="300" y="52" text-anchor="middle" class="title">Page Header</text>
+  <text x="300" y="72" text-anchor="middle" class="text">Magic Number | Page Type | Item Count | Lower/Upper Offset | Flags</text>
+  
+  <!-- Arrow -->
+  <line x1="300" y1="85" x2="300" y2="95" class="arrow"/>
+  
+  <!-- Cell Pointer Array -->
+  <rect x="20" y="100" width="560" height="60" rx="4" class="box"/>
+  <text x="300" y="132" text-anchor="middle" class="title">Cell Pointer Array</text>
+  <text x="300" y="152" text-anchor="middle" class="text">ptr1 → ptr2 → ptr3 → ... → ptrN</text>
+  
+  <!-- Arrow -->
+  <line x1="300" y1="165" x2="300" y2="175" class="arrow"/>
+ 
+  <!-- Free Space -->
+  <rect x="20" y="180" width="560" height="50" rx="4" class="box"/>
+  <text x="300" y="210" text-anchor="middle" class="title">Free Space</text>
+  
+  <!-- Arrow -->
+  <line x1="300" y1="235" x2="300" y2="245" class="arrow"/>
+ 
+  <!-- Cell Data Area -->
+  <rect x="20" y="250" width="560" height="70" rx="4" class="box"/>
+  <text x="300" y="278" text-anchor="middle" class="title">Cell Data Area</text>
+  <text x="300" y="298" text-anchor="middle" class="text">Cell N ← Cell N-1 ← ... ← Cell 2 ← Cell 1</text>
+  <text x="300" y="312" text-anchor="middle" class="label">(Growth: pointers ↓, data ↑)</text>
+  
+  <!-- Direction labels -->
+  <text x="580" y="138" text-anchor="end" class="label">↓ ptrs</text>
+  <text x="580" y="298" text-anchor="end" class="label">↑ data</text>
+</svg>
