@@ -3,9 +3,23 @@
   <text x="18" y="24" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#0b1220">그림: CLOCK-sweep 예시</text>
   <!-- circular buffer -->
   <g transform="translate(140,40)">
-    <circle cx="120" cy="40" r="40" fill="#f1f5f9" stroke="#cbd5e1"/>
-    <text x="92" y="45" font-size="11" fill="#475569" font-family="Arial, Helvetica, sans-serif">access bits</text>
+    <!-- Circular buffer rings -->
+    <g>
+      <circle cx="120" cy="40" r="40" fill="#f1f5f9" stroke="#cbd5e1"/>
+      <!-- segments -->
+      <g transform="translate(120,40)">
+        <path d="M40 0 A40 40 0 0 0 12 38" fill="#e6eefc"/>
+        <path d="M12 38 A40 40 0 0 0 -32 24" fill="#f1f5f9"/>
+        <path d="M-32 24 A40 40 0 0 0 -38 -6" fill="#e6eefc"/>
+        <path d="M-38 -6 A40 40 0 0 0 -6 -38" fill="#f1f5f9"/>
+        <path d="M-6 -38 A40 40 0 0 0 34 -12" fill="#e6eefc"/>
+      </g>
+      <circle cx="120" cy="40" r="4" fill="#0b1220"/>
+      <text x="92" y="45" font-size="11" fill="#475569" font-family="Arial, Helvetica, sans-serif">원형 버퍼 (각 칸에 access bit)</text>
+    </g>
     <rect x="240" y="-2" width="220" height="84" fill="#eef6ff" stroke="#cfe5ff" rx="6"/>
-    <text x="250" y="28" font-size="12" fill="#0b1220" font-family="Arial, Helvetica, sans-serif">원형 버퍼와 스윕 포인터: 접근비트가 1이면 스킵, 0이면 후보</text>
+    <text x="250" y="28" font-size="12" fill="#0b1220" font-family="Arial, Helvetica, sans-serif">스윕 포인터가 접근비트를 검사해 교체 후보를 찾습니다</text>
   </g>
+  <!-- small legend -->
+  <text x="18" y="140" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#475569">참고: 접근비트=1이면 최근 사용됨, 0이면 교체 후보</text>
 </svg>
