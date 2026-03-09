@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="180" viewBox="0 0 700 180" role="img" aria-label="TinyLFU 큐 구조">
+  <rect width="700" height="180" fill="#ffffff" rx="6" stroke="#e6eefc"/>
+  <text x="18" y="24" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#0b1220">그림: TinyLFU의 큐 구조</text>
+  <rect x="40" y="48" width="180" height="100" rx="6" fill="#fff7e6" stroke="#ffdca8"/>
+  <text x="80" y="84" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#0b1220">Admission (신규)</text>
+  <rect x="260" y="48" width="180" height="100" rx="6" fill="#eefef1" stroke="#d6f5db"/>
+  <text x="320" y="84" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#0b1220">Probation (후보)</text>
+  <rect x="480" y="48" width="180" height="100" rx="6" fill="#eef6ff" stroke="#cfe5ff"/>
+  <text x="540" y="84" font-family="Arial, Helvetica, sans-serif" font-size="13" fill="#0b1220">Protected (보호)</text>
+  <text x="40" y="160" font-family="Arial, Helvetica, sans-serif" font-size="12" fill="#475569">빈도 필터와 큐 간 승격/강등으로 빈도가 높은 항목을 유지합니다.</text>
+</svg>

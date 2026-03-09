@@ -28,7 +28,7 @@
     <input type="text" class="search-box" placeholder="Search chapters..." onkeyup="filterChapters(this.value)">
   </header>
 
-  <ul class="chapter-list" id="chapterList">
+    <ul class="chapter-list" id="chapterList">
     <li class="chapter-item" data-keywords="b-tree basic fundamentals">
       <a href="chapter-02.html">Chapter 2: B-Tree Basics</a>
       <div class="excerpt">
@@ -50,7 +50,23 @@
         디스크 관점의 B-Tree 구현: 오버플로, 브레드크럼, 리밸런싱, 유지보수
       </div>
     </li>
-  </ul>
+    <li class="chapter-item" data-keywords="transactions recovery wal">
+      <a href="chapter-05.html">Chapter 5: Transaction Processing and Recovery</a>
+      <div class="excerpt">
+        <span class="tag">트랜잭션</span>
+        트랜잭션의 ACID, 페이지 캐시, WAL/ARIES, 동시성 제어 요약
+      </div>
+    </li>
+    </ul>
+    <li style="list-style:none;margin-top:16px">
+      <div class="chapter-item">
+        <a href="chapter-05.html">Chapter 5: Transaction Processing and Recovery</a>
+        <div class="excerpt">
+          <span class="tag">트랜잭션</span>
+          트랜잭션의 ACID, 페이지 캐시, WAL/ARIES, 동시성 제어 요약
+        </div>
+      </div>
+    </li>
 
   <footer>
     <p>Database Internals - Blog | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>

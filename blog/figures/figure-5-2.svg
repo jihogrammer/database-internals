@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="700" height="160" viewBox="0 0 700 160" role="img" aria-label="CLOCK-sweep 도식">
+  <rect width="700" height="160" fill="#ffffff" rx="6" stroke="#e6eefc"/>
+  <text x="18" y="24" font-family="Arial, Helvetica, sans-serif" font-size="14" fill="#0b1220">그림: CLOCK-sweep 예시</text>
+  <!-- circular buffer -->
+  <g transform="translate(140,40)">
+    <circle cx="120" cy="40" r="40" fill="#f1f5f9" stroke="#cbd5e1"/>
+    <text x="92" y="45" font-size="11" fill="#475569" font-family="Arial, Helvetica, sans-serif">access bits</text>
+    <rect x="240" y="-2" width="220" height="84" fill="#eef6ff" stroke="#cfe5ff" rx="6"/>
+    <text x="250" y="28" font-size="12" fill="#0b1220" font-family="Arial, Helvetica, sans-serif">원형 버퍼와 스윕 포인터: 접근비트가 1이면 스킵, 0이면 후보</text>
+  </g>
+</svg>

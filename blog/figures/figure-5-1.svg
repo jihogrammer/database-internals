@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="220" viewBox="0 0 900 220" role="img" aria-label="페이지 캐시 개념도">
+  <rect x="12" y="12" width="876" height="196" fill="#ffffff" rx="8" stroke="#e6eefc"/>
+  <!-- On-disk -->
+  <rect x="32" y="36" width="240" height="84" rx="6" fill="#fff7e6" stroke="#ffdca8"/>
+  <text x="46" y="66" font-size="14" fill="#0b1220" font-family="Arial, Helvetica, sans-serif">디스크 페이지 (On-disk pages)</text>
+  <text x="46" y="86" font-size="12" fill="#475569" font-family="Arial, Helvetica, sans-serif">영구 저장</text>
+
+  <!-- Page cache -->
+  <rect x="330" y="36" width="240" height="84" rx="6" fill="#eef6ff" stroke="#cfe5ff"/>
+  <text x="344" y="62" font-size="14" fill="#0b1220" font-family="Arial, Helvetica, sans-serif">페이지 캐시 (Page cache / Buffer pool)</text>
+  <text x="344" y="82" font-size="12" fill="#475569" font-family="Arial, Helvetica, sans-serif">메모리에서 읽기/수정</text>
+
+  <!-- Dirty -->
+  <rect x="644" y="36" width="212" height="84" rx="6" fill="#fff0f6" stroke="#ffb3c6"/>
+  <text x="656" y="62" font-size="14" fill="#0b1220" font-family="Arial, Helvetica, sans-serif">Dirty 페이지 (수정됨)</text>
+  <text x="656" y="82" font-size="12" fill="#475569" font-family="Arial, Helvetica, sans-serif">디스크에 플러시 필요</text>
+
+  <!-- arrows -->
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="6" refY="5" orient="auto">
+      <path d="M0,0 L0,10 L10,5 z" fill="#0b1220" />
+    </marker>
+  </defs>
+  <path d="M274 78 L330 78" stroke="#0b74de" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="290" y="70" font-size="11" fill="#0b74de" font-family="Arial, Helvetica, sans-serif">page-in</text>
+
+  <path d="M570 120 L644 120" stroke="#16a34a" stroke-width="3" marker-end="url(#arrow)"/>
+  <text x="520" y="112" font-size="11" fill="#16a34a" font-family="Arial, Helvetica, sans-serif">flush (checkpoint)</text>
+
+  <text x="46" y="120" font-size="12" fill="#475569" font-family="Arial, Helvetica, sans-serif">디스크 → 캐시 → 수정(Dirty) → 플러시의 흐름을 보여줍니다.</text>
+</svg>
