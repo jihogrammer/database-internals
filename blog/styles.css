@@ -29,3 +29,16 @@ figcaption{color:var(--muted);font-size:13px}
 .chapter-item .excerpt{color:#718096;font-size:0.95rem;margin-top:6px}
 footer{color:var(--muted);font-size:13px;margin-top:18px}
 @media (max-width:920px){.grid{grid-template-columns:1fr}aside{order:-1;margin-bottom:12px}}
+
+/* Code block visual sanity overrides to harmonize Highlight.js with site styles */
+/* Make the pre element the primary container and keep .hljs/theme transparent */
+pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
+pre code, pre .hljs{background:transparent !important;padding:0 !important;display:block;color:inherit}
+code{background:rgba(241,245,249,0.06);padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
+.hljs{background:transparent !important;color:inherit}
+.hljs-comment,.hljs-quote{color:#9aa4b2}
+.hljs-keyword,.hljs-selector-tag,.hljs-subst{color:#7dd3fc}
+.hljs-built_in,.hljs-type{color:#c084fc}
+.hljs-literal,.hljs-number,.hljs-params{color:#f472b6}
+.hljs-string,.hljs-template-string{color:#34d399}
+.hljs-title,.hljs-section{color:#f59e0b}

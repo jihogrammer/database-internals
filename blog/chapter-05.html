@@ -7,39 +7,10 @@
   <meta name="description" content="트랜잭션의 ACID, 페이지 캐시와 버퍼 관리, 쓰기 앞 로그(WAL), ARIES 복구, 동시성 제어를 읽기 쉬운 블로그 형식으로 정리합니다." />
   <meta property="og:title" content="5장 — 트랜잭션 처리와 복구" />
   <meta property="og:description" content="ACID, 페이지 캐시, WAL, ARIES, 동시성 제어의 핵심을 요약한 글입니다." />
-  <link rel="stylesheet" href="/blog/styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="./styles.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
   <script>document.addEventListener('DOMContentLoaded',()=>{if(window.hljs)hljs.highlightAll();});</script>
-
-  <style>
-    :root{
-      --bg:#fbfcfe; --card:#ffffff; --text:#0b1220; --muted:#475569; --accent:#0b74de;
-      --radius:12px; --maxw:900px; --mono:SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-    }
-    html,body{height:100%;}
-    body{margin:0;font-family:Inter, 'Helvetica Neue', Arial, sans-serif;background:linear-gradient(180deg,#f4f7fb, #fbfcfe);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;padding:28px}
-    .wrap{max-width:var(--maxw);margin:0 auto}
-    header{display:flex;gap:18px;align-items:flex-start;margin-bottom:20px}
-    h1{font-family:Merriweather, Georgia, 'Times New Roman', serif;margin:0;font-size:28px}
-    .meta{color:var(--muted);font-size:14px}
-    nav.toc{position:sticky;top:20px;background:transparent;padding:12px 0}
-    .grid{display:grid;grid-template-columns:1fr 300px;gap:28px}
-    main.article{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:0 6px 22px rgba(12,33,72,0.06)}
-    aside{background:transparent}
-    h2{font-size:18px;margin:20px 0 8px}
-    h3{font-size:15px;margin:16px 0 6px}
-    p{margin:0 0 12px}
-    pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
-    code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
-    figure{margin:14px 0}
-    figcaption{color:var(--muted);font-size:13px}
-    .toc-list{list-style:none;padding:0;margin:0;font-size:14px}
-    .toc-list a{color:var(--accent);text-decoration:none}
-    .pill{display:inline-block;padding:6px 10px;background:#eef4ff;color:var(--accent);border-radius:999px;font-size:13px}
-    footer{color:var(--muted);font-size:13px;margin-top:18px}
-    @media (max-width:900px){.grid{grid-template-columns:1fr}aside{order:-1;margin-bottom:12px}}
-  </style>
 </head>
 <body>
   <div class="wrap">
@@ -133,6 +104,12 @@
           <p>체크포인트는 특정 LSN까지의 로그가 안전하게 디스크에 반영되었음을 표시합니다. 전체를 동기식으로 플러시하면 서비스 중단이 크므로 대부분의 시스템은 퍼지 체크포인트(fuzzy checkpoint)를 사용해 비동기적으로 페이지만 플러시합니다.</p>
 
           <pre><code class="language-none"># WAL 예시 (pseudo)
+begin_transaction(T1)
+log(LSN1, "UPDATE accounts SET balance = balance - 100 WHERE id = 1")
+log(LSN2, "UPDATE accounts SET balance = balance + 100 WHERE id = 2")
+force_log(LSN2)  # commit record forced
+commit(T1)
+</code></pre>
 
           <h3>연산 로그 vs 데이터 로그</h3>
           <p>로그는 물리적(페이지 이미지)일 수도 있고 논리적(연산)일 수도 있습니다. 물리적 로그는 페이지의 바이트 이미지를 보관하고, 논리적 로그는 수행해야 할 연산을 기록합니다. 실무에서는 논리적 언두와 물리적 리두를 결합해 동시성과 복구 속도를 균형 있게 맞춥니다.</p>
