@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Chapter 5 — Transaction Processing and Recovery</title>
+  <meta name="description" content="Chapter 5: Transaction Processing and Recovery — ACID, buffer management, page cache, write-ahead log, recovery (ARIES) and concurrency control summarized." />
+  <meta property="og:title" content="Chapter 5 — Transaction Processing and Recovery" />
+  <meta property="og:description" content="ACID, page cache, WAL, ARIES, and concurrency control explained." />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded',()=>{if(window.hljs)hljs.highlightAll();});</script>
+
+  <style>
+    :root{
+      --bg:#fbfcfe; --card:#ffffff; --text:#0b1220; --muted:#475569; --accent:#0b74de;
+      --radius:12px; --maxw:900px; --mono:SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
+    }
+    html,body{height:100%;}
+    body{margin:0;font-family:Inter, 'Helvetica Neue', Arial, sans-serif;background:linear-gradient(180deg,#f4f7fb, #fbfcfe);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased;padding:28px}
+    .wrap{max-width:var(--maxw);margin:0 auto}
+    header{display:flex;gap:18px;align-items:flex-start;margin-bottom:20px}
+    h1{font-family:Merriweather, Georgia, 'Times New Roman', serif;margin:0;font-size:28px}
+    .meta{color:var(--muted);font-size:14px}
+    nav.toc{position:sticky;top:20px;background:transparent;padding:12px 0}
+    .grid{display:grid;grid-template-columns:1fr 300px;gap:28px}
+    main.article{background:var(--card);padding:22px;border-radius:var(--radius);box-shadow:0 6px 22px rgba(12,33,72,0.06)}
+    aside{background:transparent}
+    h2{font-size:18px;margin:20px 0 8px}
+    h3{font-size:15px;margin:16px 0 6px}
+    p{margin:0 0 12px}
+    pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
+    code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
+    figure{margin:14px 0}
+    figcaption{color:var(--muted);font-size:13px}
+    .toc-list{list-style:none;padding:0;margin:0;font-size:14px}
+    .toc-list a{color:var(--accent);text-decoration:none}
+    .pill{display:inline-block;padding:6px 10px;background:#eef4ff;color:var(--accent);border-radius:999px;font-size:13px}
+    footer{color:var(--muted);font-size:13px;margin-top:18px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}aside{order:-1;margin-bottom:12px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Chapter 5: Transaction Processing and Recovery</h1>
+        <div class="meta">Topics: <span class="pill">ACID</span> <span class="pill">Page cache</span> <span class="pill">WAL</span> <span class="pill">ARIES</span></div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <main class="article">
+        <section id="intro">
+          <p>This chapter moves from low-level storage to the components required for transactions: buffer management, locks, logging, and recovery. We explain transactions as logical units of work and the guarantees they must provide (ACID), then describe page caching, eviction policies, write-ahead logging, recovery techniques (including ARIES), and concurrency-control strategies.</p>
+        </section>
+
+        <section id="acid">
+          <h2>ACID</h2>
+          <p>A transaction is an indivisible logical unit of work that groups multiple operations (reads and writes). Transactions must preserve Atomicity, Consistency, Isolation, and Durability (ACID).</p>
+          <h3>Atomicity</h3>
+          <p>Either all steps of a transaction succeed, or none do. A committed transaction makes changes visible; an aborted transaction must roll back all side effects. Commit is final; after abort a transaction can be retried.</p>
+          <h3>Consistency</h3>
+          <p>Consistency is application-specific: a transaction should move the database from one valid state to another (respecting constraints, referential integrity, etc.).</p>
+          <h3>Isolation</h3>
+          <p>Concurrent transactions should behave as if executed serially. Many systems relax isolation for performance and provide isolation levels (see <a href="#isolation">Isolation Levels</a>).</p>
+          <h3>Durability</h3>
+          <p>Once committed, transaction effects must survive crashes and power loss; durability implies writing sufficient state to persistent storage.</p>
+        </section>
+
+        <section id="components">
+          <h2>Key Components</h2>
+          <p>Implementing transactions requires coordinated components on the node: transaction manager, lock manager, page cache (buffer pool), and log manager.</p>
+          <p>The lock manager grants shared/exclusive locks to protect resources; the page cache stages changes in memory; the log manager keeps an append-only history (the WAL) used for replay and undo during recovery.</p>
+        </section>
+
+        <section id="buffer-management">
+          <h2>Buffer Management & Page Cache</h2>
+          <p>Databases use a two-level memory hierarchy: persistent storage (disk) and main memory (RAM). The page cache (also called buffer pool) keeps disk pages in memory to reduce I/O.</p>
+          <p>Cached pages are referenced by the storage engine, can be pinned to avoid eviction, and when modified are marked dirty until flushed to disk. In a crash, cached-only changes are lost unless protected by the WAL.</p>
+
+          <figure>
+            <img src="/static/img/chapter-05/figure-5-1.svg" alt="Figure 5-1 Page cache" style="max-width:100%">
+            <figcaption>Figure 5-1. Relation between logical B-Tree pages, cached versions, and pages on disk.</figcaption>
+          </figure>
+
+          <h3>Bypassing the kernel page cache</h3>
+          <p>Many databases use O_DIRECT to bypass the kernel page cache and implement their own buffer management. This trades off kernel services (readahead, async) for application control. Other options include posix_fadvise and memory mapping.</p>
+
+          <h3>Caching semantics</h3>
+          <p>The page cache lets the engine decouple logical writes from physical writes. When a page is requested, the cache returns an in-memory copy or loads it from disk; modified pages are dirty until flushed. Pinning prevents eviction while in use.</p>
+        </section>
+
+        <section id="eviction">
+          <h2>Cache Eviction & Page Replacement</h2>
+          <p>When memory fills, the cache must evict pages. Clean (in-sync) pages can be evicted immediately; dirty pages must be flushed first. Checkpointing coordinates flushes with the WAL to preserve durability.</p>
+          <p>Eviction policy matters. Naïve strategies can suffer Bélády’s anomaly where larger caches increase evictions.</p>
+
+          <h3>FIFO and LRU</h3>
+          <p>FIFO evicts by insertion order; LRU evicts least-recently used pages and updates access order on each access. LRU can be costly to maintain with high concurrency.</p>
+
+          <h3>CLOCK</h3>
+          <p>The CLOCK algorithm is a compact approximation of LRU using an access bit and a circular buffer; it is efficient and commonly used (Linux employs a variant).</p>
+
+          <figure>
+            <img src="/static/img/chapter-05/figure-5-2.svg" alt="Figure 5-2 CLOCK" style="max-width:100%">
+            <figcaption>Figure 5-2. CLOCK-sweep example (placeholder)</figcaption>
+          </figure>
+
+          <h3>LFU / TinyLFU</h3>
+          <p>Frequency-based eviction (LFU) tracks access counts. TinyLFU combines a frequency filter with admission and protected/probation queues to favor frequently used items (used by Caffeine library).</p>
+        </section>
+
+        <section id="recovery">
+          <h2>Recovery & Write-Ahead Log (WAL)</h2>
+          <p>Systems must survive failures at multiple layers. The write-ahead log (WAL) is an append-only structure recording operations so that in-memory changes can be reconstructed after a crash. The WAL is central to durability: an operation that modifies state must be logged before its pages are persisted.</p>
+
+          <h3>PostgreSQL and fsync()</h3>
+          <p>PostgreSQL uses checkpoints and fsync() to sync dirty pages. However, fsync semantics on some OSes can clear dirty flags even on I/O errors, potentially masking problems. Careful testing of failure scenarios is critical for recovery correctness.</p>
+
+          <h3>Log semantics</h3>
+          <p>WAL records have monotonically increasing log sequence numbers (LSNs). Log buffers are flushed (forced) to disk in LSN order. A transaction is not committed until its commit record is forced to disk. Compensation log records (CLRs) can be used during undo to make recovery robust.</p>
+
+          <h3>Checkpoints</h3>
+          <p>Checkpoints mark points where log records up to an LSN are durable and can be discarded. Fuzzy checkpoints avoid pausing the system: begin/end checkpoint records and async page flushes let recovery start from the last successful checkpoint.</p>
+
+          <h3>Operation vs Data Log</h3>
+          <p>Logs can be physical (page images) or logical (operations). Physical logging stores before/after images; logical logging stores operations. Many systems mix approaches (logical undo, physical redo) to balance concurrency and recovery speed.</p>
+
+          <h3>Steal and Force policies</h3>
+          <p>Steal/no-steal and force/noforce policies define when in-memory changes are flushed. Steal allows flushing uncommitted changes (requiring undo records); force requires flushing a transaction's pages before commit (slower). ARIES is a steal/no-force algorithm.</p>
+
+          <h3>ARIES</h3>
+          <p>ARIES (Algorithm for Recovery and Isolation Exploiting Semantics) uses WAL, physical redo and logical undo, and compensation log records. Recovery runs in three phases: analysis (identify dirty pages and in-flight transactions), redo (replay history up to crash), and undo (roll back incomplete transactions).</p>
+        </section>
+
+        <section id="concurrency">
+          <h2>Concurrency Control</h2>
+          <p>Concurrency control handles interactions among concurrent transactions. Approaches include optimistic concurrency control (OCC), multiversion concurrency control (MVCC), pessimistic (lock-based) schemes, and timestamp ordering.</p>
+
+          <h3>Serializability</h3>
+          <p>A schedule is serializable if it is equivalent to some serial execution of the same transactions. Serializable schedules allow concurrent execution while preserving the correctness of a serial schedule.</p>
+
+          <h3>Isolation Levels & Anomalies</h3>
+          <p>SQL defines anomalies: dirty reads, nonrepeatable reads, and phantom reads. Isolation levels (read uncommitted, read committed, repeatable read, serializable) trade performance for stronger guarantees. Snapshot isolation provides a snapshot of committed state at transaction start but can allow write skew.</p>
+
+          <h3>Optimistic Concurrency Control (OCC)</h3>
+          <p>OCC splits execution into read, validation, and write phases. Transactions execute without blocking, then validate that they do not conflict; conflicts cause abort and retry. Validation can be backward- or forward-oriented.</p>
+
+          <h3>Multiversion Concurrency Control (MVCC)</h3>
+          <p>MVCC keeps multiple timestamped versions of records so readers can see a consistent snapshot. It reduces coordination for reads and is often used to implement snapshot isolation.</p>
+
+          <h3>Pessimistic & Lock-Based Control</h3>
+          <p>Pessimistic schemes detect conflicts during execution and use locks to block or abort. Two-phase locking (2PL) is widespread: acquire locks in a growing phase and release them in a shrinking phase. Locks introduce contention and risk deadlocks.</p>
+        </section>
+
+        <footer>
+          <p>Source: derived from chapter text. For figures replace placeholders at <code>/static/img/chapter-05/</code>. Created for the project documentation.</p>
+        </footer>
+      </main>
+
+      <aside>
+        <nav class="toc">
+          <strong>Contents</strong>
+          <ul class="toc-list">
+            <li><a href="#intro">Intro</a></li>
+            <li><a href="#acid">ACID</a></li>
+            <li><a href="#components">Key Components</a></li>
+            <li><a href="#buffer-management">Buffer Management</a></li>
+            <li><a href="#eviction">Cache Eviction</a></li>
+            <li><a href="#recovery">Recovery & WAL</a></li>
+            <li><a href="#concurrency">Concurrency Control</a></li>
+          </ul>
+        </nav>
+
+        <section style="margin-top:12px">
+          <strong>Quick facts</strong>
+          <ul style="color:var(--muted);font-size:14px">
+            <li>WAL: append-only, LSN-ordered</li>
+            <li>ARIES: analysis → redo → undo</li>
+            <li>Eviction: CLOCK commonly used</li>
+            <li>MVCC: read-friendly, may allow write skew</li>
+          </ul>
+        </section>
+
+        <section style="margin-top:14px">
+          <strong>Next steps</strong>
+          <ol style="color:var(--muted);font-size:14px;margin:8px 0 0;padding-left:18px">
+            <li>Add SVGs for figures</li>
+            <li>Hook up syntax highlighting for code blocks</li>
+            <li>Run accessibility & SEO checks</li>
+          </ol>
+        </section>
+      </aside>
+    </div>
+  </div>
+</body>
+</html>
+          <figure>
+            <img src="/static/img/chapter-05/figure-5-3.svg" alt="Figure 5-3 TinyLFU" style="max-width:100%">
+            <figcaption>Figure 5-3. TinyLFU admission/probation/protected queues (placeholder)</figcaption>
+          </figure>
