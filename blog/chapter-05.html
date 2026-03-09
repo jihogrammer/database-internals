@@ -75,7 +75,7 @@
         </section>
 
         <section id="buffer-management">
-          <h2>Buffer Management & Page Cache</h2>
+          <h2>Buffer Management &amp; Page Cache</h2>
           <p>Databases use a two-level memory hierarchy: persistent storage (disk) and main memory (RAM). The page cache (also called buffer pool) keeps disk pages in memory to reduce I/O.</p>
           <p>Cached pages are referenced by the storage engine, can be pinned to avoid eviction, and when modified are marked dirty until flushed to disk. In a crash, cached-only changes are lost unless protected by the WAL.</p>
 
@@ -92,7 +92,7 @@
         </section>
 
         <section id="eviction">
-          <h2>Cache Eviction & Page Replacement</h2>
+          <h2>Cache Eviction &amp; Page Replacement</h2>
           <p>When memory fills, the cache must evict pages. Clean (in-sync) pages can be evicted immediately; dirty pages must be flushed first. Checkpointing coordinates flushes with the WAL to preserve durability.</p>
           <p>Eviction policy matters. Naïve strategies can suffer Bélády’s anomaly where larger caches increase evictions.</p>
 
@@ -112,7 +112,7 @@
         </section>
 
         <section id="recovery">
-          <h2>Recovery & Write-Ahead Log (WAL)</h2>
+          <h2>Recovery &amp; Write-Ahead Log (WAL)</h2>
           <p>Systems must survive failures at multiple layers. The write-ahead log (WAL) is an append-only structure recording operations so that in-memory changes can be reconstructed after a crash. The WAL is central to durability: an operation that modifies state must be logged before its pages are persisted.</p>
 
           <h3>PostgreSQL and fsync()</h3>
@@ -141,7 +141,7 @@
           <h3>Serializability</h3>
           <p>A schedule is serializable if it is equivalent to some serial execution of the same transactions. Serializable schedules allow concurrent execution while preserving the correctness of a serial schedule.</p>
 
-          <h3>Isolation Levels & Anomalies</h3>
+          <h3>Isolation Levels &amp; Anomalies</h3>
           <p>SQL defines anomalies: dirty reads, nonrepeatable reads, and phantom reads. Isolation levels (read uncommitted, read committed, repeatable read, serializable) trade performance for stronger guarantees. Snapshot isolation provides a snapshot of committed state at transaction start but can allow write skew.</p>
 
           <h3>Optimistic Concurrency Control (OCC)</h3>
@@ -150,7 +150,7 @@
           <h3>Multiversion Concurrency Control (MVCC)</h3>
           <p>MVCC keeps multiple timestamped versions of records so readers can see a consistent snapshot. It reduces coordination for reads and is often used to implement snapshot isolation.</p>
 
-          <h3>Pessimistic & Lock-Based Control</h3>
+          <h3>Pessimistic &amp; Lock-Based Control</h3>
           <p>Pessimistic schemes detect conflicts during execution and use locks to block or abort. Two-phase locking (2PL) is widespread: acquire locks in a growing phase and release them in a shrinking phase. Locks introduce contention and risk deadlocks.</p>
         </section>
 
@@ -168,7 +168,7 @@
             <li><a href="#components">Key Components</a></li>
             <li><a href="#buffer-management">Buffer Management</a></li>
             <li><a href="#eviction">Cache Eviction</a></li>
-            <li><a href="#recovery">Recovery & WAL</a></li>
+            <li><a href="#recovery">Recovery &amp; WAL</a></li>
             <li><a href="#concurrency">Concurrency Control</a></li>
           </ul>
         </nav>
@@ -188,7 +188,7 @@
           <ol style="color:var(--muted);font-size:14px;margin:8px 0 0;padding-left:18px">
             <li>Add SVGs for figures</li>
             <li>Hook up syntax highlighting for code blocks</li>
-            <li>Run accessibility & SEO checks</li>
+            <li>Run accessibility &amp; SEO checks</li>
           </ol>
         </section>
       </aside>
