@@ -7,7 +7,7 @@
 html,body{height:100%;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
 .wrap{max-width:var(--maxw);margin:24px auto;padding:20px}
-header{background:var(--card);border:1px solid #e6eefc;border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:18px}
+header{background:var(--card);border:1px solid #e6eefc;border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
 h1{font-size:22px;margin:0;font-weight:700;color:#0b1220}
 .meta{color:var(--muted);font-size:13px}
 .pill{display:inline-block;padding:6px 10px;background:#eef4ff;color:var(--accent);border-radius:999px;font-size:12px;margin-left:6px}
@@ -17,7 +17,7 @@ aside{padding:6px}
 h2{font-size:18px;margin:18px 0 8px}
 h3{font-size:15px;margin:12px 0 6px}
 p{margin:0 0 12px}
-pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
+pre{background:#f0f0f0;color:#000;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
 code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
 figure{margin:14px 0}
 figcaption{color:var(--muted);font-size:13px}
@@ -42,7 +42,7 @@ footer{color:var(--muted);font-size:13px;margin-top:18px}
 
 /* Code block visual sanity overrides to harmonize Highlight.js with site styles */
 /* Make the pre element the primary container and keep .hljs/theme transparent */
-pre{background:#0b1220;color:#dbeafe;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
+pre{background:#f0f0f0;color:#000;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
 pre code, pre .hljs{background:transparent !important;padding:0 !important;display:block;color:inherit}
 code{background:rgba(241,245,249,0.06);padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
 .hljs{background:transparent !important;color:inherit}
@@ -52,3 +52,27 @@ code{background:rgba(241,245,249,0.06);padding:2px 6px;border-radius:6px;font-fa
 .hljs-literal,.hljs-number,.hljs-params{color:#f472b6}
 .hljs-string,.hljs-template-string{color:#34d399}
 .hljs-title,.hljs-section{color:#f59e0b}
+
+/* Chapter page styles */
+.chapter-body{max-width:960px;margin:0 auto;padding:20px;line-height:1.6;color:#222;background:#fafafa}
+.chapter-body h1{color:#1a365d;border-bottom:3px solid #3182ce;padding-bottom:10px}
+.chapter-body h2{color:#2c5282;margin-top:2em;border-left:4px solid #3182ce;padding-left:12px}
+.chapter-body h3{color:#2b6cb0}
+.chapter-body pre{background:#f0f0f0;color:#000;padding:12px;border-radius:6px;overflow-x:auto;font-size:0.9em}
+.chapter-body code{background:#edf2f7;padding:2px 6px;border-radius:3px;font-size:0.9em}
+.chapter-body table{border-collapse:collapse;width:100%;margin:1em 0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
+.chapter-body th,.chapter-body td{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}
+.chapter-body th{background:#edf2f7;font-weight:600}
+.chapter-body tr:nth-child(even){background:#f7fafc}
+.korean-summary{background:#fff;border:1px solid #cbd5e0;border-radius:8px;padding:20px;margin-bottom:2em;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+.korean-summary h1{font-size:1.5em;margin-top:0}
+.original-text{background:#fff;border:1px solid #e2e8f0;padding:20px;margin-top:2em;border-radius:8px}
+.original-text h2{color:#553c9a;border-left-color:#805ad5}
+.chapter-nav{background:#2c5282;color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.chapter-nav a{color:#fff;text-decoration:none;padding:6px 12px;background:#3182ce;border-radius:4px;margin:0 4px}
+.chapter-nav a:hover{background:#2c5282}
+.chapter-search-box{background:#fff;border-radius:4px;padding:6px 12px;border:none}
+.chapter-search-box::placeholder{color:#a0aec0}
+.chapter-footer{text-align:center;margin-top:40px;color:#718096;font-size:0.9em}
+.mermaid{background:#fff;padding:10px;border-radius:8px;margin:10px 0}
+.chapter-blockquote{background:#f7fafc;border-left:4px solid #805ad5;margin:1em 0;padding:10px 15px;color:#4a5568}

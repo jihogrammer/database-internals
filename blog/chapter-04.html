@@ -4,367 +4,348 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Chapter 4: Implementing BTrees</title>
+  <link rel="stylesheet" href="./styles.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;max-width:960px;margin:0 auto;padding:20px;line-height:1.6;color:#222;background:#fafafa}
-    h1{color:#1a365d;border-bottom:3px solid #3182ce;padding-bottom:10px}
-    h2{color:#2c5282;margin-top:2em;border-left:4px solid #3182ce;padding-left:12px}
-    h3{color:#2b6cb0}
-    h4{color:#3182ce}
-    pre{background:#edf2f7;padding:12px;border-radius:6px;overflow-x:auto;font-size:0.85em}
-    code{background:#edf2f7;padding:2px 6px;border-radius:3px;font-size:0.9em}
-    table{border-collapse:collapse;width:100%;margin:1em 0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-    th,td{border:1px solid #e2e8f0;padding:8px 12px;text-align:left;font-size:0.9em}
-    th{background:#edf2f7;font-weight:600}
-    tr:nth-child(even){background:#f7fafc}
-    .korean-summary{background:#fff;border:1px solid #cbd5e0;border-radius:8px;padding:20px;margin-bottom:2em;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
-    .korean-summary h1{font-size:1.5em;margin-top:0}
-    .original-text{background:#fff;border:1px solid #e2e8f0;padding:20px;margin-top:2em;border-radius:8px}
-    .original-text h2{color:#553c9a;border-left-color:#805ad5}
-    nav{background:#2c5282;color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-    nav a{color:#fff;text-decoration:none;padding:6px 12px;background:#3182ce;border-radius:4px;margin:0 4px}
-    nav a:hover{background:#2c5282}
-    .search-box{background:#fff;border-radius:4px;padding:6px 12px;border:none}
-    .search-box::placeholder{color:#a0aec0}
-    footer{text-align:center;margin-top:40px;color:#718096;font-size:0.9em}
-    .mermaid{background:#fff;padding:10px;border-radius:8px;margin:10px 0}
-    blockquote{background:#f7fafc;border-left:4px solid #805ad5;margin:1em 0;padding:10px 15px;color:#4a5568}
-    ul,ol{margin:0.5em 0;padding-left:1.5em}
-    li{margin:0.3em 0}
-  </style>
 </head>
-<body>
-  <nav>
+<body class="chapter-body">
+
+<nav class="chapter-nav">
     <div>
       <a href="index.html">← Home</a>
       <a href="chapter-03.html">◀ Prev</a>
       <a href="chapter-05.html">Next ▶</a>
     </div>
-    <input type="text" class="search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
+    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
   </nav>
 
-  <div class="korean-summary">
-    <h1>4장 - B-Tree 구현 (Implementing BTrees)</h1>
-    <p>이 장에서는 디스크 기반 B-Tree 구현에 특화된 개념들을 다룹니다.</p>
+<main>
+    <!-- 한국어 요약 -->
+    <section class="korean-summary">
+        <h1>4장 - B-Tree 구현 (Implementing BTrees)</h1>
+        <p class="meta">작성일: 2026-03-01</p>
 
-    <h2>1. 페이지 헤더 (Page Header)</h2>
-    <p>페이지 헤더는 네비게이션, 유지보수, 최적화에 사용되는 페이지 관련 정보를 담습니다.</p>
-    <ul>
-      <li>플래그 (페이지 내용/레이아웃)</li>
-      <li>셀 개수</li>
-      <li>Lower/Upper 오프셋 (빈 공간 표시)</li>
-      <li>매직 넘버 (유효성 검사)</li>
-    </ul>
+        <h2>개요</h2>
+        <p>이 장에서는 디스크 기반 B-Tree 구현에 특화된 개념들을 다룹니다.</p>
 
-    <h4>📐 페이지 전체 구조</h4>
-    <div class="mermaid">
-    flowchart TB
-      subgraph Page["Page - 전체 구조"]
-        direction TB
-        Header["Page Header<br/>- Magic Number<br/>- Page Type<br/>- Item Count<br/>- Lower/Upper Offset<br/>- Rightmost Pointer<br/>- Flags"]
-        PointerArray["Cell Pointer Array<br/>(오프셋 배열)"]
-        FreeSpace["Free Space<br/>(사용 가능한 영역)"]
-        CellArea["Cell Data Area<br/>(실제 데이터)"]
-      end
-      Header --> PointerArray
-      PointerArray --> FreeSpace
-      FreeSpace --> CellArea
-    </div>
+        <h2>페이지 헤더 (Page Header)</h2>
+        <p>페이지 헤더는 네비게이션, 유지보수, 최적화에 사용되는 페이지 관련 정보를 담습니다.</p>
+        <ul>
+          <li>플래그 (페이지 내용/레이아웃)</li>
+          <li>셀 개수</li>
+          <li>Lower/Upper 오프셋 (빈 공간 표시)</li>
+          <li>매직 넘버 (유효성 검사)</li>
+        </ul>
 
-    <h4>📐 페이지 레이아웃 상세</h4>
-    <img src="figures/page-layout.svg" alt="Page Layout" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h4>📐 페이지 전체 구조</h4>
+        <div class="mermaid">
+        flowchart TB
+          subgraph Page["Page - 전체 구조"]
+            direction TB
+            Header["Page Header<br/>- Magic Number<br/>- Page Type<br/>- Item Count<br/>- Lower/Upper Offset<br/>- Rightmost Pointer<br/>- Flags"]
+            PointerArray["Cell Pointer Array<br/>(오프셋 배열)"]
+            FreeSpace["Free Space<br/>(사용 가능한 영역)"]
+            CellArea["Cell Data Area<br/>(실제 데이터)"]
+          end
+          Header --> PointerArray
+          PointerArray --> FreeSpace
+          FreeSpace --> CellArea
+        </div>
 
-    <h4>🔍 포인터 유형 정리</h4>
-    <table>
-      <tr><th>포인터 종류</th><th>위치</th><th>설명</th></tr>
-      <tr><td>Child Pointer</td><td>셀 내부</td><td>자식 페이지 ID</td></tr>
-      <tr><td>Rightmost Pointer</td><td>헤더</td><td>가장 오른쪽 자식</td></tr>
-      <tr><td>Sibling Pointer</td><td>헤더</td><td>좌/우 형제 페이지</td></tr>
-      <tr><td>Overflow Pointer</td><td>셀 내부</td><td>오버플로 페이지 ID</td></tr>
-      <tr><td>Parent Pointer</td><td>메모리만</td><td>부모 페이지 (디스크 미저장)</td></tr>
-    </table>
+        <h4>📐 페이지 레이아웃 상세</h4>
+        <img src="figures/page-layout.svg" alt="Page Layout" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-    <h4>📦 셀 구조: Internal Node vs Leaf Node</h4>
-    
-    <h5>Internal Node (내부 노드) - 인덱스용</h5>
-    <img src="figures/cell-internal.svg" alt="Internal Node Cell Structure" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h4>🔍 포인터 유형 정리</h4>
+        <table>
+          <tr><th>포인터 종류</th><th>위치</th><th>설명</th></tr>
+          <tr><td>Child Pointer</td><td>셀 내부</td><td>자식 페이지 ID</td></tr>
+          <tr><td>Rightmost Pointer</td><td>헤더</td><td>가장 오른쪽 자식</td></tr>
+          <tr><td>Sibling Pointer</td><td>헤더</td><td>좌/우 형제 페이지</td></tr>
+          <tr><td>Overflow Pointer</td><td>셀 내부</td><td>오버플로 페이지 ID</td></tr>
+          <tr><td>Parent Pointer</td><td>메모리만</td><td>부모 페이지 (디스크 미저장)</td></tr>
+        </table>
 
-    <h5>Leaf Node (리프 노드) - 데이터 저장용</h5>
-    <img src="figures/cell-leaf.svg" alt="Leaf Node Cell Structure" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h4>📦 셀 구조: Internal Node vs Leaf Node</h4>
 
-    <h4>🔑 키-포인터 불변식</h4>
-    <img src="figures/key-pointer.svg" alt="Key-Pointer Invariant" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h5>Internal Node (내부 노드) - 인덱스용</h5>
+        <img src="figures/cell-internal.svg" alt="Internal Node Cell Structure" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-    <h4>📏 페이지 크기 예시 (4KB)</h4>
-    <table>
-      <tr><th>영역</th><th>크기</th><th>설명</th></tr>
-      <tr><td>Header</td><td>~50 bytes</td><td>고정 크기</td></tr>
-      <tr><td>Pointer Array</td><td>~400 bytes</td><td>4B × 최대 키 수</td></tr>
-      <tr><td>Free Space</td><td>~1000 bytes</td><td>여유 공간</td></tr>
-      <tr><td>Cell Area</td><td>~2646 bytes</td><td>실제 데이터</td></tr>
-    </table>
+        <h5>Leaf Node (리프 노드) - 데이터 저장용</h5>
+        <img src="figures/cell-leaf.svg" alt="Leaf Node Cell Structure" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-    <hr>
+        <h4>🔑 키-포인터 불변식</h4>
+        <img src="figures/key-pointer.svg" alt="Key-Pointer Invariant" style="max-width: 100%; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
 
-    <h2>2. 형제 링크 (Sibling Links)</h2>
-    <p>좌우 형제 페이지를 가리키는 전/후방 링크를 저장합니다. 부모로 올라가지 않고도 인접 노드를 찾을 수 있지만, 분할/병합 시 복잡성이 증가합니다.</p>
+        <h4>📏 페이지 크기 예시 (4KB)</h4>
+        <table>
+          <tr><th>영역</th><th>크기</th><th>설명</th></tr>
+          <tr><td>Header</td><td>~50 bytes</td><td>고정 크기</td></tr>
+          <tr><td>Pointer Array</td><td>~400 bytes</td><td>4B × 최대 키 수</td></tr>
+          <tr><td>Free Space</td><td>~1000 bytes</td><td>여유 공간</td></tr>
+          <tr><td>Cell Area</td><td>~2646 bytes</td><td>실제 데이터</td></tr>
+        </table>
 
-    <h2>3. 오른쪽 포인터 (Rightmost Pointers)</h2>
-    <p>B-Tree 키보다 포인터가 하나 더 많다는 불변식. SQLite는 헤더에, PostgreSQL은 high-key 방식으로 관리합니다.</p>
+        <hr>
 
-    <h2>4. 노드 High Keys</h2>
-    <p>high key는 노드 하위 트리에 저장될 수 있는 최대 키를 나타냅니다. PostgreSQL의 Blink-Tree에서 사용합니다.</p>
+        <h2>형제 링크 (Sibling Links)</h2>
+        <p>좌우 형제 페이지를 가리키는 전/후방 링크를 저장합니다. 부모로 올라가지 않고도 인접 노드를 찾을 수 있지만, 분할/병합 시 복잡성이 증가합니다.</p>
 
-    <h2>5. 오버플로 페이지 (Overflow Pages)</h2>
-    <p>가변 크기 값이 페이지 크기를 초과하면 오버플로 페이지에 연결합니다.</p>
-    <table>
-      <tr><th>개념</th><th>설명</th></tr>
-      <tr><td>Primary Page</td><td>원본 페이지</td></tr>
-      <tr><td>Overflow Page</td><td>연결된 확장 페이지</td></tr>
-      <tr><td>max_payload_size</td><td>페이지당 최대 페이로드</td></tr>
-    </table>
+        <h2>오른쪽 포인터 (Rightmost Pointers)</h2>
+        <p>B-Tree 키보다 포인터가 하나 더 많다는 불변식. SQLite는 헤더에, PostgreSQL은 high-key 방식으로 관리합니다.</p>
 
-    <h4>다이어그램: 오버플로 페이지 구조</h4>
-    <div class="mermaid">
-    flowchart LR
-      Primary[Primary page]
-      Overflow1[Overflow page 1]
-      Overflow2[Overflow page 2]
+        <h2>노드 High Keys</h2>
+        <p>high key는 노드 하위 트리에 저장될 수 있는 최대 키를 나타냅니다. PostgreSQL의 Blink-Tree에서 사용합니다.</p>
 
-      Primary --> Overflow1 --> Overflow2
-      Primary -->|cell points to| Overflow1
-      Overflow1 -->|continuation| Overflow2
-    </div>
+        <h2>오버플로 페이지 (Overflow Pages)</h2>
+        <p>가변 크기 값이 페이지 크기를 초과하면 오버플로 페이지에 연결합니다.</p>
+        <table>
+          <tr><th>개념</th><th>설명</th></tr>
+          <tr><td>Primary Page</td><td>원본 페이지</td></tr>
+          <tr><td>Overflow Page</td><td>연결된 확장 페이지</td></tr>
+          <tr><td>max_payload_size</td><td>페이지당 최대 페이로드</td></tr>
+        </table>
 
-    <h2>6. 이진 탐색 (Binary Search)</h2>
-    <p>페이지 내부 키는 오프셋 배열로 관리됩니다. 이진 탐색으로 중간 오프셋을 선택하고 해당 셀을 읽어 비교합니다.</p>
+        <h4>다이어그램: 오버플로 페이지 구조</h4>
+        <div class="mermaid">
+        flowchart LR
+          Primary[Primary page]
+          Overflow1[Overflow page 1]
+          Overflow2[Overflow page 2]
 
-    <h4>다이어그램: 이진 탐색 (간접 포인터)</h4>
-    <div class="mermaid">
-    flowchart LR
-      offsets[Cell Offsets Array]
-      offsets --> cellMid[Cell mid]
-      cellMid --> decision{"< | = | >"}
-      decision -- "<" --> offsetsLeft[search left]
-      decision -- ">" --> offsetsRight[search right]
-      offsetsLeft --> cellLeft[Cell left]
-      offsetsRight --> cellRight[Cell right]
-    </div>
+          Primary --> Overflow1 --> Overflow2
+          Primary -->|cell points to| Overflow1
+          Overflow1 -->|continuation| Overflow2
+        </div>
 
-    <h4>다이어그램: 노드 분할 과정</h4>
-    <div class="mermaid">
-    flowchart TD
-      Parent[Parent node]
-      ChildBefore[Child node before split]
-      ChildLeft[Child node left after split]
-      ChildRight[Child node right after split]
-      PromotedKey[Promoted key inserted in parent]
+        <h2>이진 탐색 (Binary Search)</h2>
+        <p>페이지 내부 키는 오프셋 배열로 관리됩니다. 이진 탐색으로 중간 오프셋을 선택하고 해당 셀을 읽어 비교합니다.</p>
 
-      Parent --> ChildBefore
-      ChildBefore --> ChildLeft
-      ChildBefore --> ChildRight
-      Parent --> ChildLeft
-      Parent --> ChildRight
-      PromotedKey --> Parent
-    </div>
+        <h4>다이어그램: 이진 탐색 (간접 포인터)</h4>
+        <div class="mermaid">
+        flowchart LR
+          offsets[Cell Offsets Array]
+          offsets --> cellMid[Cell mid]
+          cellMid --> decision{"< | = | >"}
+          decision -- "<" --> offsetsLeft[search left]
+          decision -- ">" --> offsetsRight[search right]
+          offsetsLeft --> cellLeft[Cell left]
+          offsetsRight --> cellRight[Cell right]
+        </div>
 
-    <h2>7. 브레드크럼 (BTStack)</h2>
-    <p>분할/병합 시 상향 전파를 위해 루트→리프 경로를 스택에 저장합니다. PostgreSQL의 BTStack이 대표적입니다.</p>
+        <h4>다이어그램: 노드 분할 과정</h4>
+        <div class="mermaid">
+        flowchart TD
+          Parent[Parent node]
+          ChildBefore[Child node before split]
+          ChildLeft[Child node left after split]
+          ChildRight[Child node right after split]
+          PromotedKey[Promoted key inserted in parent]
 
-    <h4>다이어그램: BTStack (브레드크럼)</h4>
-    <div class="mermaid">
-    flowchart TD
-      BTStack[BTStack-breadcrumbs]
-      NodeA[Node-A-index-2]
-      NodeB[Node-B-index-5]
-      NodeC[Node-C-index-0]
+          Parent --> ChildBefore
+          ChildBefore --> ChildLeft
+          ChildBefore --> ChildRight
+          Parent --> ChildLeft
+          Parent --> ChildRight
+          PromotedKey --> Parent
+        </div>
 
-      BTStack --> NodeA --> NodeB --> NodeC
-    </div>
+        <h2>브레드크럼 (BTStack)</h2>
+        <p>분할/병합 시 상향 전파를 위해 루트→리프 경로를 스택에 저장합니다. PostgreSQL의 BTStack이 대표적입니다.</p>
 
-    <h2>8. 리밸런싱 (Rebalancing)</h2>
-    <p>분할/병합을 연기하고 같은 레벨 내에서 요소를 이동시켜 노드 점유율을 개선합니다. B*-Tree는 2/3 점유율을 유지합니다.</p>
+        <h4>다이어그램: BTStack (브레드크럼)</h4>
+        <div class="mermaid">
+        flowchart TD
+          BTStack[BTStack-breadcrumbs]
+          NodeA[Node-A-index-2]
+          NodeB[Node-B-index-5]
+          NodeC[Node-C-index-0]
 
-    <h4>다이어그램: 리밸런싱 (요소 이동)</h4>
-    <div class="mermaid">
-    flowchart LR
-      LeftNode[Left node - many cells]
-      RightNode[Right node - few cells]
-      Rebalance[Move cells to rebalance]
+          BTStack --> NodeA --> NodeB --> NodeC
+        </div>
 
-      LeftNode -->|move cells| RightNode
-      Rebalance -.-> LeftNode
-      Rebalance -.-> RightNode
-    </div>
+        <h2>리밸런싱 (Rebalancing)</h2>
+        <p>분할/병합을 연기하고 같은 레벨 내에서 요소를 이동시켜 노드 점유율을 개선합니다. B*-Tree는 2/3 점유율을 유지합니다.</p>
 
-    <h2>9. 오른쪽 전용 Append</h2>
-    <p>자동 증가 키 사용 시 오른쪽 리프에만 삽입해 분할을 최소화합니다. PostgreSQL fastpath, SQLite quickbalance가 대표적입니다.</p>
+        <h4>다이어그램: 리밸런싱 (요소 이동)</h4>
+        <div class="mermaid">
+        flowchart LR
+          LeftNode[Left node - many cells]
+          RightNode[Right node - few cells]
+          Rebalance[Move cells to rebalance]
 
-    <h2>10. 벌크 로딩 (Bulk Loading)</h2>
-    <p>정렬된 데이터를 페이지 단위로 쓰고 상위 노드를 구성해 분할을 완전히 회피합니다.</p>
+          LeftNode -->|move cells| RightNode
+          Rebalance -.-> LeftNode
+          Rebalance -.-> RightNode
+        </div>
 
-    <h2>11. 압축과 블록 패딩</h2>
-    <p>페이지 단위 압축은 독립적 압축/해제를 허용하지만, 압축된 페이지가 디스크 블록보다 작을 때 추가 로드가 발생할 수 있습니다.</p>
+        <h2>오른쪽 전용 Append</h2>
+        <p>자동 증가 키 사용 시 오른쪽 리프에만 삽입해 분할을 최소화합니다. PostgreSQL fastpath, SQLite quickbalance가 대표적입니다.</p>
 
-    <h2>12. 유지보수: Vacuum/Compaction</h2>
-    <p>삭제/업데이트로 인한 조각화를 정리하고 페이지를 재작성합니다. 프리리스트에 반환하여 공간을 회수합니다.</p>
+        <h2>벌크 로딩 (Bulk Loading)</h2>
+        <p>정렬된 데이터를 페이지 단위로 쓰고 상위 노드를 구성해 분할을 완전히 회피합니다.</p>
 
-    <h4>다이어그램: 조각화된 페이지 예시</h4>
-    <div class="mermaid">
-    flowchart LR
-      header[Header / Slot array]
-      header --> cell1[Cell 1 live]
-      header --> cell2[Cell 2 deleted garbage]
-      header --> cell3[Cell 3 live]
-      cell1 --> dataA[Data A]
-      cell2 --> dataB[Deleted space]
-      cell3 --> dataC[Data C]
-    </div>
+        <h2>압축과 블록 패딩</h2>
+        <p>페이지 단위 압축은 독립적 압축/해제를 허용하지만, 압축된 페이지가 디스크 블록보다 작을 때 추가 로드가 발생할 수 있습니다.</p>
 
-    <hr>
+        <h2>유지보수: Vacuum/Compaction</h2>
+        <p>삭제/업데이트로 인한 조각화를 정리하고 페이지를 재작성합니다. 프리리스트에 반환하여 공간을 회수합니다.</p>
 
-    <h2>📌 4장의 핵심: 디스크 기반 B-Tree 구현</h2>
-    
-    <p>4장의 제목 "Implementing BTrees"는 <strong>프로그래밍적 구현</strong>이 아니라, <strong>디스크 환경(온디스크)에서의 B-Tree 구현</strong>을 의미합니다.</p>
+        <h4>다이어그램: 조각화된 페이지 예시</h4>
+        <div class="mermaid">
+        flowchart LR
+          header[Header / Slot array]
+          header --> cell1[Cell 1 live]
+          header --> cell2[Cell 2 deleted garbage]
+          header --> cell3[Cell 3 live]
+          cell1 --> dataA[Data A]
+          cell2 --> dataB[Deleted space]
+          cell3 --> dataC[Data C]
+        </div>
 
-    <h3>왜 디스크 환경인가?</h3>
-    <ul>
-      <li>메모리는 휘발적이고 크기가 제한됨</li>
-      <li>디스크는 비휘발적이고 대용량 데이터 저장 가능</li>
-      <li>하지만 디스크 접근(I/O)은 메모리 접근보다 <strong>수천 배 느림</strong></li>
-    </ul>
+        <hr>
 
-    <h3>디스크 기반 구현의 핵심 과제</h3>
-    <table>
-      <tr><th>과제</th><th>디스크 관점 해결책</th></tr>
-      <tr><td>I/O 최소화</td><td>큰 팬아웃 (페이지당 많은 키)</td></tr>
-      <tr><td>로컬리티</td><td>연속된 데이터는 같은 페이지에 배치</td></tr>
-      <tr><td>가변 크기 값</td><td>Overflow 페이지 연결</td></tr>
-      <tr><td>지속성</td><td>WAL, 체크포인트, fsync</td></tr>
-      <tr><td>조각화</td><td>Vacuum/Compaction</td></tr>
-    </table>
+        <h2>📌 4장의 핵심: 디스크 기반 B-Tree 구현</h2>
 
-    <h3>디스크 vs 메모리 B-Tree 동작 비교</h3>
-    <div class="mermaid">
-    flowchart LR
-      subgraph Memory ["Memory B-Tree"]
-        M1[Pointer node link] --> M2[Fast random access]
-        M2 --> M3[Runtime GC]
-      end
+        <p>4장의 제목 "Implementing BTrees"는 <strong>프로그래밍적 구현</strong>이 아니라, <strong>디스크 환경(온디스크)에서의 B-Tree 구현</strong>을 의미합니다.</p>
 
-      subgraph Disk ["Disk B-Tree"]
-        D1[Page ID node link] --> D2[I-O unit page access]
-        D2 --> D3[Vacuum-Compaction]
-      end
+        <h3>왜 디스크 환경인가?</h3>
+        <ul>
+          <li>메모리는 휘발적이고 크기가 제한됨</li>
+          <li>디스크는 비휘발적이고 대용량 데이터 저장 가능</li>
+          <li>하지만 디스크 접근(I/O)은 메모리 접근보다 <strong>수천 배 느림</strong></li>
+        </ul>
 
-      Memory -->|Speed| Disk
-    </div>
+        <h3>디스크 기반 구현의 핵심 과제</h3>
+        <table>
+          <tr><th>과제</th><th>디스크 관점 해결책</th></tr>
+          <tr><td>I/O 최소화</td><td>큰 팬아웃 (페이지당 많은 키)</td></tr>
+          <tr><td>로컬리티</td><td>연속된 데이터는 같은 페이지에 배치</td></tr>
+          <tr><td>가변 크기 값</td><td>Overflow 페이지 연결</td></tr>
+          <tr><td>지속성</td><td>WAL, 체크포인트, fsync</td></tr>
+          <tr><td>조각화</td><td>Vacuum/Compaction</td></tr>
+        </table>
 
-    <blockquote>
-      <p><strong>핵심:</strong> 디스크 B-Tree는 "한 번의 I/O로 최대한 많은 데이터를 가져오는 것"이 목표입니다.</p>
-      <p>따라서 4장에서는:</p>
-      <ul>
-        <li>페이지 구조 (헤더, 셀, 오프셋 배열)</li>
-        <li>오버플로 페이지 (대용량 값 처리)</li>
-        <li>이진 탐색 + 간접 포인터</li>
-        <li>브레드크럼 (분할/병합 추적)</li>
-        <li>리밸런싱 & 최적화</li>
-        <li>유지보수 (Vacuum)</li>
-      </ul>
-      <p>등을 다룹니다 — 모두 디스크 환경을 위한 구현 세부사항입니다.</p>
-    </blockquote>
-  </div>
+        <h3>디스크 vs 메모리 B-Tree 동작 비교</h3>
+        <div class="mermaid">
+        flowchart LR
+          subgraph Memory ["Memory B-Tree"]
+            M1[Pointer node link] --> M2[Fast random access]
+            M2 --> M3[Runtime GC]
+          end
 
-  <div class="original-text">
-    <h2>Original English Text</h2>
+          subgraph Disk ["Disk B-Tree"]
+            D1[Page ID node link] --> D2[I-O unit page access]
+            D2 --> D3[Vacuum-Compaction]
+          end
 
-    <h3>Chapter 4: Implementing BTrees</h3>
-    <p>In the previous chapter, we talked about general principles of binary format composition, and learned how to create cells, build hierarchies, and connect them to pages using pointers. These concepts are applicable for both in-place update and append-only storage structures. In this chapter, we discuss some concepts specific to B-Trees.</p>
+          Memory -->|Speed| Disk
+        </div>
 
-    <p>The sections in this chapter are split into three logical groups. First, we discuss organization: how to establish relationships between keys and pointers, and how to implement headers and links between pages.</p>
-    <p>Next, we discuss processes that occur during root-to-leaf descends, namely how to perform binary search and how to collect breadcrumbs and keep track of parent nodes in case we later have to split or merge nodes.</p>
-    <p>Lastly, we discuss optimization techniques (rebalancing, right-only appends, and bulk loading), maintenance processes, and garbage collection.</p>
+        <blockquote class="chapter-blockquote">
+          <p><strong>핵심:</strong> 디스크 B-Tree는 "한 번의 I/O로 최대한 많은 데이터를 가져오는 것"이 목표입니다.</p>
+          <p>따라서 4장에서는:</p>
+          <ul>
+            <li>페이지 구조 (헤더, 셀, 오프셋 배열)</li>
+            <li>오버플로 페이지 (대용량 값 처리)</li>
+            <li>이진 탐색 + 간접 포인터</li>
+            <li>브레드크럼 (분할/병합 추적)</li>
+            <li>리밸런싱 & 최적화</li>
+            <li>유지보수 (Vacuum)</li>
+          </ul>
+          <p>등을 다룹니다 — 모두 디스크 환경을 위한 구현 세부사항입니다.</p>
+        </blockquote>
+    </section>
 
-    <h3>Page Header</h3>
-    <p>The page header holds information about the page that can be used for navigation, maintenance, and optimizations. It usually contains flags that describe page contents and layout, number of cells in the page, lower and upper offsets marking the empty space, and other useful metadata.</p>
-    <p>For example, PostgreSQL stores the page size and layout version in the header. In MySQL InnoDB, page header holds the number of heap records, level, and some other implementation-specific values. In SQLite, page header stores the number of cells and a rightmost pointer.</p>
+    <!-- 원문 -->
+    <section class="original-text">
+        <h2>Original English Text</h2>
 
-    <h3>Magic Numbers</h3>
-    <p>One of the values often placed in the file or page header is a magic number. Usually, it's a multibyte block, containing a constant value that can be used to signal that the block represents a page, specify its kind, or identify its version.</p>
-    <p>Magic numbers are often used for validation and sanity checks.</p>
+        <h3>Chapter 4: Implementing BTrees</h3>
+        <p>In the previous chapter, we talked about general principles of binary format composition, and learned how to create cells, build hierarchies, and connect them to pages using pointers. These concepts are applicable for both in-place update and append-only storage structures. In this chapter, we discuss some concepts specific to B-Trees.</p>
 
-    <h3>Sibling Links</h3>
-    <p>Some implementations store forward and backward links, pointing to the left and right sibling pages. These links help to locate neighboring nodes without having to ascend back to the parent.</p>
+        <p>The sections in this chapter are split into three logical groups. First, we discuss organization: how to establish relationships between keys and pointers, and how to implement headers and links between pages.</p>
+        <p>Next, we discuss processes that occur during root-to-leaf descends, namely how to perform binary search and how to collect breadcrumbs and keep track of parent nodes in case we later have to split or merge nodes.</p>
+        <p>Lastly, we discuss optimization techniques (rebalancing, right-only appends, and bulk loading), maintenance processes, and garbage collection.</p>
 
-    <h3>Rightmost Pointers</h3>
-    <p>B-Tree separator keys have strict invariants: they're used to split the tree into subtrees and navigate them, so there is always one more pointer to child pages than there are keys.</p>
-    <p>This extra pointer can be stored in the header as, for example, it is implemented in SQLite.</p>
+        <h3>Page Header</h3>
+        <p>The page header holds information about the page that can be used for navigation, maintenance, and optimizations. It usually contains flags that describe page contents and layout, number of cells in the page, lower and upper offsets marking the empty space, and other useful metadata.</p>
+        <p>For example, PostgreSQL stores the page size and layout version in the header. In MySQL InnoDB, page header holds the number of heap records, level, and some other implementation-specific values. In SQLite, page header stores the number of cells and a rightmost pointer.</p>
 
-    <h3>Node High Keys</h3>
-    <p>We can take a slightly different approach and store the rightmost pointer in the cell along with the node high key. The high key represents the highest possible key that can be present in the subtree under the current node. This approach is used by PostgreSQL and is called Blink-Trees.</p>
+        <h3>Magic Numbers</h3>
+        <p>One of the values often placed in the file or page header is a magic number. Usually, it's a multibyte block, containing a constant value that can be used to signal that the block represents a page, specify its kind, or identify its version.</p>
+        <p>Magic numbers are often used for validation and sanity checks.</p>
 
-    <h3>Overflow Pages</h3>
-    <p>Node size and tree fanout values are fixed and do not change dynamically. To implement variable-size nodes without copying data to the new contiguous region, we can build nodes from multiple linked pages.</p>
-    <p>Most B-Tree implementations allow storing only up to a fixed number of payload bytes in the B-Tree node directly and spilling the rest to the overflow page.</p>
+        <h3>Sibling Links</h3>
+        <p>Some implementations store forward and backward links, pointing to the left and right sibling pages. These links help to locate neighboring nodes without having to ascend back to the parent.</p>
 
-    <h3>Binary Search</h3>
-    <p>We've already discussed the B-Tree lookup algorithm and mentioned that we locate a searched key within the node using the binary search algorithm. Binary search works only for sorted data.</p>
+        <h3>Rightmost Pointers</h3>
+        <p>B-Tree separator keys have strict invariants: they're used to split the tree into subtrees and navigate them, so there is always one more pointer to child pages than there are keys.</p>
+        <p>This extra pointer can be stored in the header as, for example, it is implemented in SQLite.</p>
 
-    <h3>Binary Search with Indirection Pointers</h3>
-    <p>Cells in the B-Tree page are stored in the insertion order, and only cell offsets preserve the logical element order. To perform binary search through page cells, we pick the middle cell offset, follow its pointer to locate the cell, compare the key from this cell with the searched key.</p>
+        <h3>Node High Keys</h3>
+        <p>We can take a slightly different approach and store the rightmost pointer in the cell along with the node high key. The high key represents the highest possible key that can be present in the subtree under the current node. This approach is used by PostgreSQL and is called Blink-Trees.</p>
 
-    <h3>Propagating Splits and Merges</h3>
-    <p>As we've discussed in previous chapters, B-Tree splits and merges can propagate to higher levels. For that, we need to be able to traverse a chain back to the root node from the splitting leaf or a pair of merging leaves.</p>
+        <h3>Overflow Pages</h3>
+        <p>Node size and tree fanout values are fixed and do not change dynamically. To implement variable-size nodes without copying data to the new contiguous region, we can build nodes from multiple linked pages.</p>
+        <p>Most B-Tree implementations allow storing only up to a fixed number of payload bytes in the B-Tree node directly and spilling the rest to the overflow page.</p>
 
-    <h3>Breadcrumbs</h3>
-    <p>Instead of storing and maintaining parent node pointers, it is possible to keep track of nodes traversed on the path to the target leaf node, and follow the chain of parent nodes in reverse order in case of cascading splits during inserts, or merges during deletes.</p>
-    <p>The most natural data structure for this is a stack. For example, PostgreSQL stores breadcrumbs in a stack, internally referenced as BTStack.</p>
+        <h3>Binary Search</h3>
+        <p>We've already discussed the B-Tree lookup algorithm and mentioned that we locate a searched key within the node using the binary search algorithm. Binary search works only for sorted data.</p>
 
-    <h3>Rebalancing</h3>
-    <p>Some B-Tree implementations attempt to postpone split and merge operations to amortize their costs by rebalancing elements within the level, or moving elements from more occupied nodes to less occupied ones.</p>
-    <p>B*-Trees keep distributing data between the neighboring nodes until both siblings are full. Then, instead of splitting a single node into two half-empty ones, the algorithm splits two nodes into three nodes, each of which is two-thirds full.</p>
+        <h3>Binary Search with Indirection Pointers</h3>
+        <p>Cells in the B-Tree page are stored in the insertion order, and only cell offsets preserve the logical element order. To perform binary search through page cells, we pick the middle cell offset, follow its pointer to locate the cell, compare the key from this cell with the searched key.</p>
 
-    <h3>Right-Only Appends</h3>
-    <p>Many database systems use auto-incremented monotonically increasing values as primary index keys. This case opens up an opportunity for an optimization, since all the insertions are happening toward the end of the index.</p>
-    <p>PostgreSQL is calling this case a fastpath. SQLite has a similar concept and calls it quickbalance.</p>
+        <h3>Propagating Splits and Merges</h3>
+        <p>As we've discussed in previous chapters, B-Tree splits and merges can propagate to higher levels. For that, we need to be able to traverse a chain back to the root node from the splitting leaf or a pair of merging leaves.</p>
 
-    <h3 Bulk Loading</h3>
-    <p>If we have presorted data and want to bulk load it, or have to rebuild the tree, we can take the idea with right-only appends even further.</p>
-    <p>Since B-Trees are always built starting from the bottom (leaf) level, the complete leaf level can be written out before any higher-level nodes are composed.</p>
+        <h3>Breadcrumbs</h3>
+        <p>Instead of storing and maintaining parent node pointers, it is possible to keep track of nodes traversed on the path to the target leaf node, and follow the chain of parent nodes in reverse order in case of cascading splits during inserts, or merges during deletes.</p>
+        <p>The most natural data structure for this is a stack. For example, PostgreSQL stores breadcrumbs in a stack, internally referenced as BTStack.</p>
 
-    <h3>Compression</h3>
-    <p>Storing the raw, uncompressed data can induce significant overhead, and many databases offer ways to compress it to save space. The apparent trade-off here is between access speed and compression ratio.</p>
-    <p>Pages can be compressed and uncompressed independently from one another, allowing you to couple compression with page loading and flushing.</p>
+        <h3>Rebalancing</h3>
+        <p>Some B-Tree implementations attempt to postpone split and merge operations to amortize their costs by rebalancing elements within the level, or moving elements from more occupied nodes to less occupied ones.</p>
+        <p>B*-Trees keep distributing data between the neighboring nodes until both siblings are full. Then, instead of splitting a single node into two half-empty ones, the algorithm splits two nodes into three nodes, each of which is two-thirds full.</p>
 
-    <h3>Vacuum and Maintenance</h3>
-    <p>So far we've been mostly talking about user-facing operations in B-Trees. However, there are other processes that happen in parallel with queries that maintain storage integrity, reclaim space, reduce overhead, and keep pages in order.</p>
-    <p>The described design of slotted pages requires maintenance to be performed on pages to keep them in good shape.</p>
-    <p>B-Trees are navigated from the root level. Data records that can be reached by following pointers down from the root node are live (addressable). Nonaddressable data records are said to be garbage.</p>
+        <h3>Right-Only Appends</h3>
+        <p>Many database systems use auto-incremented monotonically increasing values as primary index keys. This case opens up an opportunity for an optimization, since all the insertions are happening toward the end of the index.</p>
+        <p>PostgreSQL is calling this case a fastpath. SQLite has a similar concept and calls it quickbalance.</p>
 
-    <h3>Summary</h3>
-    <p>In this chapter, we discussed the concepts specific to on-disk B-Tree implementations, such as:</p>
-    <ul>
-      <li><strong>Page header</strong>: What information is usually stored there.</li>
-      <li><strong>Rightmost pointers</strong>: These are not paired with separator keys, and how to handle them.</li>
-      <li><strong>High keys</strong>: Determine the maximum allowed key that can be stored in the node.</li>
-      <li><strong>Overflow pages</strong>: Allow you to store oversize and variable-size records using fixed-size pages.</li>
-    </ul>
-    <p>After that, we went through some details related to root-to-leaf traversals: how to perform binary search with indirection pointers, how to keep track of tree hierarchies using parent pointers or breadcrumbs.</p>
-    <p>Lastly, we went through some optimization and maintenance techniques: rebalancing, right-only appends, bulk loading, and garbage collection.</p>
-  </div>
+        <h3>Bulk Loading</h3>
+        <p>If we have presorted data and want to bulk load it, or have to rebuild the tree, we can take the idea with right-only appends even further.</p>
+        <p>Since B-Trees are always built starting from the bottom (leaf) level, the complete leaf level can be written out before any higher-level nodes are composed.</p>
 
-  <footer>
+        <h3>Compression</h3>
+        <p>Storing the raw, uncompressed data can induce significant overhead, and many databases offer ways to compress it to save space. The apparent trade-off here is between access speed and compression ratio.</p>
+        <p>Pages can be compressed and uncompressed independently from one another, allowing you to couple compression with page loading and flushing.</p>
+
+        <h3>Vacuum and Maintenance</h3>
+        <p>So far we've been mostly talking about user-facing operations in B-Trees. However, there are other processes that happen in parallel with queries that maintain storage integrity, reclaim space, reduce overhead, and keep pages in order.</p>
+        <p>The described design of slotted pages requires maintenance to be performed on pages to keep them in good shape.</p>
+        <p>B-Trees are navigated from the root level. Data records that can be reached by following pointers down from the root node are live (addressable). Nonaddressable data records are said to be garbage.</p>
+
+        <h3>Summary</h3>
+        <p>In this chapter, we discussed the concepts specific to on-disk B-Tree implementations, such as:</p>
+        <ul>
+          <li><strong>Page header</strong>: What information is usually stored there.</li>
+          <li><strong>Rightmost pointers</strong>: These are not paired with separator keys, and how to handle them.</li>
+          <li><strong>High keys</strong>: Determine the maximum allowed key that can be stored in the node.</li>
+          <li><strong>Overflow pages</strong>: Allow you to store oversize and variable-size records using fixed-size pages.</li>
+        </ul>
+        <p>After that, we went through some details related to root-to-leaf traversals: how to perform binary search with indirection pointers, how to keep track of tree hierarchies using parent pointers or breadcrumbs.</p>
+        <p>Lastly, we went through some optimization and maintenance techniques: rebalancing, right-only appends, bulk loading, and garbage collection.</p>
+    </section>
+</main>
+
+<footer class="chapter-footer">
     <p>Database Internals - Chapter 4 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-  </footer>
+</footer>
 
-  <script>
+<script>
     mermaid.initialize({ startOnLoad: true, theme: 'default' });
     
     function searchChapter(query) {
       if (!query) return;
       window.find(query, false, false, true, false, true);
     }
-  </script>
+</script>
 </body>
 </html>

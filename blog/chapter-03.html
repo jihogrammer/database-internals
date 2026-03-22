@@ -4,121 +4,97 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Chapter 3: File Formats</title>
+  <link rel="stylesheet" href="./styles.css">
   <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
-  <style>
-    *{box-sizing:border-box}
-    body{font-family: system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;max-width:960px;margin:0 auto;padding:20px;line-height:1.6;color:#222;background:#fafafa}
-    h1{color:#1a365d;border-bottom:3px solid #3182ce;padding-bottom:10px}
-    h2{color:#2c5282;margin-top:2em;border-left:4px solid #3182ce;padding-left:12px}
-    h3{color:#2b6cb0}
-    h4{color:#3182ce}
-    pre{background:#edf2f7;padding:12px;border-radius:6px;overflow-x:auto;font-size:0.85em}
-    code{background:#edf2f7;padding:2px 6px;border-radius:3px;font-size:0.9em}
-    table{border-collapse:collapse;width:100%;margin:1em 0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-    th,td{border:1px solid #e2e8f0;padding:8px 12px;text-align:left;font-size:0.9em}
-    th{background:#edf2f7;font-weight:600}
-    tr:nth-child(even){background:#f7fafc}
-    .korean-summary{background:#fff;border:1px solid #cbd5e0;border-radius:8px;padding:20px;margin-bottom:2em;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
-    .korean-summary h1{font-size:1.5em;margin-top:0}
-    .original-text{background:#fff;border:1px solid #e2e8f0;padding:20px;margin-top:2em;border-radius:8px}
-    .original-text h2{color:#553c9a;border-left-color:#805ad5}
-    nav{background:#2c5282;color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-    nav a{color:#fff;text-decoration:none;padding:6px 12px;background:#3182ce;border-radius:4px;margin:0 4px}
-    nav a:hover{background:#2c5282}
-    .search-box{background:#fff;border-radius:4px;padding:6px 12px;border:none}
-    .search-box::placeholder{color:#a0aec0}
-    footer{text-align:center;margin-top:40px;color:#718096;font-size:0.9em}
-    .mermaid{background:#fff;padding:10px;border-radius:8px;margin:10px 0}
-    blockquote{background:#f7fafc;border-left:4px solid #805ad5;margin:1em 0;padding:10px 15px;color:#4a5568}
-    ul,ol{margin:0.5em 0;padding-left:1.5em}
-    li{margin:0.3em 0}
-  </style>
 </head>
-<body>
-  <nav>
+<body class="chapter-body">
+
+<nav class="chapter-nav">
     <div>
       <a href="index.html">← Home</a>
       <a href="chapter-02.html">◀ Prev</a>
       <a href="chapter-04.html">Next ▶</a>
     </div>
-    <input type="text" class="search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
+    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
   </nav>
 
-  <div class="korean-summary">
-    <h1>3장 - 파일 포맷 (File Format)</h1>
-    <p><strong>날짜:</strong> 2026-02-24</p>
+<main>
+    <!-- 한국어 요약 -->
+    <section class="korean-summary">
+        <h1>3장 - 파일 포맷 (File Format)</h1>
+        <p class="meta">작성일: 2026-02-24</p>
 
-    <h2>1) 개요</h2>
-    <p>파일 포맷은 데이터베이스가 디스크에 데이터를 저장하는 방식을 정의합니다.</p>
-    <p><strong>파일 포맷의 핵심 특성:</strong></p>
-    <ul>
-      <li><strong>컴팩트함</strong>: 최소한의 디스크 공간 사용</li>
-      <li><strong>직렬화/역직렬화 용이성</strong>: 디스크 쓰기(write)와 읽기(read) 함수로 빠르게 변환 가능</li>
-      <li><strong>접근 효율성</strong>: 빠른 데이터 검색 및 수정</li>
-      <li><strong>호환성</strong>: 다양한 데이터 타입 지원</li>
-      <li><strong>안정성</strong>: 데이터 무결성 보장</li>
-    </ul>
+        <h2>개요</h2>
+        <p>파일 포맷은 데이터베이스가 디스크에 데이터를 저장하는 방식을 정의합니다.</p>
+        <p><strong>파일 포맷의 핵심 특성:</strong></p>
+        <ul>
+          <li><strong>컴팩트함</strong>: 최소한의 디스크 공간 사용</li>
+          <li><strong>직렬화/역직렬화 용이성</strong>: 디스크 쓰기(write)와 읽기(read) 함수로 빠르게 변환 가능</li>
+          <li><strong>접근 효율성</strong>: 빠른 데이터 검색 및 수정</li>
+          <li><strong>호환성</strong>: 다양한 데이터 타입 지원</li>
+          <li><strong>안정성</strong>: 데이터 무결성 보장</li>
+        </ul>
 
-    <h2>2) 파일 포맷의 중요성</h2>
-    <p>데이터를 효율적으로 디스크에 저장하려면 컴팩트하고 직렬화와 역직렬화가 쉬운 포맷으로 인코딩해야 합니다.</p>
-    <blockquote>
-      <p><strong>메모리와 디스크의 접근 방식 차이:</strong></p>
-      <p>메모리: malloc()/free() 함수 사용 → 동적 할당/해제 가능, 포인터 사용 가능</p>
-      <p>디스크: read()/write() 함수만 사용 → 순차 I/O만 가능, 포인터 사용 불가능</p>
-    </blockquote>
+        <h2>파일 포맷의 중요성</h2>
+        <p>데이터를 효율적으로 디스크에 저장하려면 컴팩트하고 직렬화와 역직렬화가 쉬운 포맷으로 인코딩해야 합니다.</p>
+        <blockquote class="chapter-blockquote">
+          <p><strong>메모리와 디스크의 접근 방식 차이:</strong></p>
+          <p>메모리: malloc()/free() 함수 사용 → 동적 할당/해제 가능, 포인터 사용 가능</p>
+          <p>디스크: read()/write() 함수만 사용 → 순차 I/O만 가능, 포인터 사용 불가능</p>
+        </blockquote>
 
-    <h2>3) 바이너리 인코딩</h2>
-    <p>바이너리 인코딩의 장점:</p>
-    <ul>
-      <li>파싱 불필요 (직렬화/역직렬화 간편)</li>
-      <li>고정 크기로 접근 가능 (read/write 최적화)</li>
-      <li>비교/정렬 연산 빠름 (메모리와 동일)</li>
-      <li>컴팩트한 크기 (공간 절약)</li>
-    </ul>
+        <h2>바이너리 인코딩</h2>
+        <p>바이너리 인코딩의 장점:</p>
+        <ul>
+          <li>파싱 불필요 (직렬화/역직렬화 간편)</li>
+          <li>고정 크기로 접근 가능 (read/write 최적화)</li>
+          <li>비교/정렬 연산 빠름 (메모리와 동일)</li>
+          <li>컴팩트한 크기 (공간 절약)</li>
+        </ul>
 
-    <h2>4) 기본형 (Primitive Types)</h2>
-    <h3>정수형 (Integers)</h3>
-    <table>
-      <tr><th>엔디안</th><th>메모리 배치</th><th>시스템</th></tr>
-      <tr><td>Big Endian</td><td>[01][02][03][04]</td><td>모토롤라, IBM</td></tr>
-      <tr><td>Little Endian</td><td>[04][03][02][01]</td><td>Intel, x86</td></tr>
-    </table>
+        <h2>기본형 (Primitive Types)</h2>
+        <h3>정수형 (Integers)</h3>
+        <table>
+          <tr><th>엔디안</th><th>메모리 배치</th><th>시스템</th></tr>
+          <tr><td>Big Endian</td><td>[01][02][03][04]</td><td>모토롤라, IBM</td></tr>
+          <tr><td>Little Endian</td><td>[04][03][02][01]</td><td>Intel, x86</td></tr>
+        </table>
 
-    <h3>부동소수점 (Floating Point)</h3>
-    <table>
-      <tr><th>유형</th><th>크기</th><th>정밀도</th></tr>
-      <tr><td>Single (float)</td><td>32-bit</td><td>~7자리</td></tr>
-      <tr><td>Double (double)</td><td>64-bit</td><td>~15자리</td></tr>
-    </table>
+        <h3>부동소수점 (Floating Point)</h3>
+        <table>
+          <tr><th>유형</th><th>크기</th><th>정밀도</th></tr>
+          <tr><td>Single (float)</td><td>32-bit</td><td>~7자리</td></tr>
+          <tr><td>Double (double)</td><td>64-bit</td><td>~15자리</td></tr>
+        </table>
 
-    <h2>5) 문자열과 가변 길이 데이터</h2>
-    <table>
-      <tr><th>방식</th><th>형식</th><th>장점</th><th>단점</th></tr>
-      <tr><td>Length-Prefixed</td><td>[Length][Data]</td><td>길이快速的 조회</td><td>길이 제한 있음</td></tr>
-      <tr><td>Null-Terminated</td><td>[Data][\0]</td><td>구현 간단</td><td>길이 조회 시 스캔</td></tr>
-      <tr><td>Fixed-Length</td><td>[Data - N bytes]</td><td>접근 O(1)</td><td>공간 낭비</td></tr>
-    </table>
+        <h2>문자열과 가변 길이 데이터</h2>
+        <table>
+          <tr><th>방식</th><th>형식</th><th>장점</th><th>단점</th></tr>
+          <tr><td>Length-Prefixed</td><td>[Length][Data]</td><td>길이 조회 빠름</td><td>길이 제한 있음</td></tr>
+          <tr><td>Null-Terminated</td><td>[Data][\0]</td><td>구현 간단</td><td>길이 조회 시 스캔</td></tr>
+          <tr><td>Fixed-Length</td><td>[Data - N bytes]</td><td>접근 O(1)</td><td>공간 낭비</td></tr>
+        </table>
 
-    <h2>6) 비트 묶음형 데이터 (Bit-Packed)</h2>
-    <table>
-      <tr><th>타입</th><th>저장 크기</th><th>공간 효율</th></tr>
-      <tr><td>Boolean (개별)</td><td>1 byte</td><td>낮음 (8배 낭비)</td></tr>
-      <tr><td>Boolean (Bit-Packing)</td><td>1 bit</td><td>높음 (8배 절약)</td></tr>
-      <tr><td>Enum</td><td>N bits</td><td>압축됨</td></tr>
-      <tr><td>Flags</td><td>1 bit each</td><td>매우 높음</td></tr>
-    </table>
+        <h2>비트 묶음형 데이터 (Bit-Packed)</h2>
+        <table>
+          <tr><th>타입</th><th>저장 크기</th><th>공간 효율</th></tr>
+          <tr><td>Boolean (개별)</td><td>1 byte</td><td>낮음 (8배 낭비)</td></tr>
+          <tr><td>Boolean (Bit-Packing)</td><td>1 bit</td><td>높음 (8배 절약)</td></tr>
+          <tr><td>Enum</td><td>N bits</td><td>압축됨</td></tr>
+          <tr><td>Flags</td><td>1 bit each</td><td>매우 높음</td></tr>
+        </table>
 
-    <h2>7) 파일 포맷 설계 원칙</h2>
-    <table>
-      <tr><th>원칙</th><th>설명</th><th>영향</th></tr>
-      <tr><td>정렬 가능성</td><td>바이너리로 직접 비교 가능</td><td>인덱싱 성능</td></tr>
-      <tr><td>호환성</td><td>버전 변경 시 기존 데이터 읽기</td><td>유지보수성</td></tr>
-      <tr><td>공간 효율성</td><td>패딩 최소화</td><td>저장 공간</td></tr>
-    </table>
+        <h2>파일 포맷 설계 원칙</h2>
+        <table>
+          <tr><th>원칙</th><th>설명</th><th>영향</th></tr>
+          <tr><td>정렬 가능성</td><td>바이너리로 직접 비교 가능</td><td>인덱싱 성능</td></tr>
+          <tr><td>호환성</td><td>버전 변경 시 기존 데이터 읽기</td><td>유지보수성</td></tr>
+          <tr><td>공간 효율성</td><td>패딩 최소화</td><td>저장 공간</td></tr>
+        </table>
 
-    <h2>8) 페이지 구조 (Page Structure)</h2>
-    <p><strong>페이지:</strong> 디스크 I/O의 최소 단위 (보통 4KB ~ 16KB)</p>
-    <pre>┌────────────────────────────────────┐
+        <h2>페이지 구조 (Page Structure)</h2>
+        <p><strong>페이지:</strong> 디스크 I/O의 최소 단위 (보통 4KB ~ 16KB)</p>
+        <pre>┌────────────────────────────────────┐
 │ Header (Magic, Type, Count, Offsets) │
 ├────────────────────────────────────┤
 │ Free Space                         │
@@ -128,133 +104,135 @@
 │ Cell Data Area                    │
 └────────────────────────────────────┘</pre>
 
-    <h2>9) 슬롯 페이지 (Slotted Page)</h2>
-    <p><strong>필수 요구사항:</strong></p>
-    <ol>
-      <li>가변 크기 레코드를 최소 오버헤드로 저장</li>
-      <li>삭제된 레코드 공간 회수 가능</li>
-      <li>페이지 외부에서 레코드를 정확한 위치와 무관하게 참조 가능</li>
-    </ol>
+        <h2>슬롯 페이지 (Slotted Page)</h2>
+        <p><strong>필수 요구사항:</strong></p>
+        <ol>
+          <li>가변 크기 레코드를 최소 오버헤드로 저장</li>
+          <li>삭제된 레코드 공간 회수 가능</li>
+          <li>페이지 외부에서 레코드를 정확한 위치와 무관하게 참조 가능</li>
+        </ol>
 
-    <h2>10) 셀 구조 (Cell Structure)</h2>
-    <ul>
-      <li><strong>Key Cell</strong>: 구분 키와 자식 페이지 포인터 저장</li>
-      <li><strong>Key-Value Cell</strong>: 키와 데이터 레코드 저장</li>
-    </ul>
+        <h2>셀 구조 (Cell Structure)</h2>
+        <ul>
+          <li><strong>Key Cell</strong>: 구분 키와 자식 페이지 포인터 저장</li>
+          <li><strong>Key-Value Cell</strong>: 키와 데이터 레코드 저장</li>
+        </ul>
 
-    <h2>11) 가변 길이 데이터 관리</h2>
-    <table>
-      <tr><th>방식</th><th>데이터 크기</th><th>I/O 횟수</th></tr>
-      <tr><td>Inline</td><td>&lt; 1KB</td><td>1회</td></tr>
-      <tr><td>Overflow</td><td>1KB-10MB</td><td>2-N회</td></tr>
-      <tr><td>External</td><td>무제한</td><td>N회 (네트워크)</td></tr>
-    </table>
+        <h2>가변 길이 데이터 관리</h2>
+        <table>
+          <tr><th>방식</th><th>데이터 크기</th><th>I/O 횟수</th></tr>
+          <tr><td>Inline</td><td>&lt; 1KB</td><td>1회</td></tr>
+          <tr><td>Overflow</td><td>1KB-10MB</td><td>2-N회</td></tr>
+          <tr><td>External</td><td>무제한</td><td>N회 (네트워크)</td></tr>
+        </table>
 
-    <h2>12) 버전 관리 (Versioning)</h2>
-    <p><strong>호환성 규칙:</strong></p>
-    <ul>
-      <li>✓ 필드 추가 (끝에만 추가, 기본값 사용)</li>
-      <li>✗ 필드 제거</li>
-      <li>✗ 타입 변경</li>
-      <li>✗ 위치 변경</li>
-    </ul>
+        <h2>버전 관리 (Versioning)</h2>
+        <p><strong>호환성 규칙:</strong></p>
+        <ul>
+          <li>✓ 필드 추가 (끝에만 추가, 기본값 사용)</li>
+          <li>✗ 필드 제거</li>
+          <li>✗ 타입 변경</li>
+          <li>✗ 위치 변경</li>
+        </ul>
 
-    <h2>13) 체크섬 (Checksum)</h2>
-    <table>
-      <tr><th>방식</th><th>크기</th><th>속도</th><th>용도</th></tr>
-      <tr><td>XOR</td><td>1B</td><td>매우 빠름</td><td>간단한 검증</td></tr>
-      <tr><td>CRC32</td><td>4B</td><td>빠름</td><td>대부분의 DB</td></tr>
-      <tr><td>SHA256</td><td>32B</td><td>느림</td><td>보안 중요</td></tr>
-    </table>
+        <h2>체크섬 (Checksum)</h2>
+        <table>
+          <tr><th>방식</th><th>크기</th><th>속도</th><th>용도</th></tr>
+          <tr><td>XOR</td><td>1B</td><td>매우 빠름</td><td>간단한 검증</td></tr>
+          <tr><td>CRC32</td><td>4B</td><td>빠름</td><td>대부분의 DB</td></tr>
+          <tr><td>SHA256</td><td>32B</td><td>느림</td><td>보안 중요</td></tr>
+        </table>
 
-    <h2>14) 요약 - 체크리스트</h2>
-    <ol>
-      <li>인코딩: 텍스트 vs 바이너리 선택</li>
-      <li>엔디안: Big-Endian or Little-Endian</li>
-      <li>문자열 길이: Length-Prefixed or Null-Term</li>
-      <li>Bit-Packing: Boolean/Enum 압축</li>
-      <li>버전 관리: Version 필드 포함</li>
-      <li>페이지 레이아웃: Slotted Page</li>
-      <li>체크섬: CRC32 또는 SHA256</li>
-    </ol>
-  </div>
+        <h2>요약 - 체크리스트</h2>
+        <ol>
+          <li>인코딩: 텍스트 vs 바이너리 선택</li>
+          <li>엔디안: Big-Endian or Little-Endian</li>
+          <li>문자열 길이: Length-Prefixed or Null-Term</li>
+          <li>Bit-Packing: Boolean/Enum 압축</li>
+          <li>버전 관리: Version 필드 포함</li>
+          <li>페이지 레이아웃: Slotted Page</li>
+          <li>체크섬: CRC32 또는 SHA256</li>
+        </ol>
+    </section>
 
-  <div class="original-text">
-    <h2>Original English Text</h2>
+    <!-- 원문 -->
+    <section class="original-text">
+        <h2>Original English Text</h2>
 
-    <h3>Chapter 3: File Formats</h3>
-    <p>With the basic semantics of B-Trees covered, we are now ready to explore how exactly B-Trees and other structures are implemented on disk. We access the disk in a way that is different from how we access main memory: from an application developer's perspective, memory accesses are mostly transparent.</p>
+        <h3>Chapter 3: File Formats</h3>
+        <p>With the basic semantics of B-Trees covered, we are now ready to explore how exactly B-Trees and other structures are implemented on disk. We access the disk in a way that is different from how we access main memory: from an application developer's perspective, memory accesses are mostly transparent.</p>
 
-    <p>Disks are accessed using system calls. We usually have to specify the offset inside the target file, and then interpret on-disk representation into a form suitable for main memory.</p>
+        <p>Disks are accessed using system calls. We usually have to specify the offset inside the target file, and then interpret on-disk representation into a form suitable for main memory.</p>
 
-    <p>This means that efficient on-disk structures have to be designed with this distinction in mind. To do that, we have to come up with a file format that's easy to construct, modify, and interpret.</p>
+        <p>This means that efficient on-disk structures have to be designed with this distinction in mind. To do that, we have to come up with a file format that's easy to construct, modify, and interpret.</p>
 
-    <h3>Binary Encoding</h3>
-    <p>To store data on disk efficiently, it needs to be encoded using a format that is compact and easy to serialize and deserialize. When talking about binary formats, you hear the word layout quite often.</p>
+        <h3>Binary Encoding</h3>
+        <p>To store data on disk efficiently, it needs to be encoded using a format that is compact and easy to serialize and deserialize. When talking about binary formats, you hear the word layout quite often.</p>
 
-    <h3>Primitive Types</h3>
-    <p>Keys and values have a type, such as integer, date, or string, and can be represented in their raw binary forms. Most numeric data types are represented as fixed-size values.</p>
+        <h3>Primitive Types</h3>
+        <p>Keys and values have a type, such as integer, date, or string, and can be represented in their raw binary forms. Most numeric data types are represented as fixed-size values.</p>
 
-    <p><strong>Endianness:</strong></p>
-    <ul>
-      <li>Big-endian: The order starts from the most-significant byte (MSB)</li>
-      <li>Little-endian: The order starts from the least-significant byte (LSB)</li>
-    </ul>
+        <p><strong>Endianness:</strong></p>
+        <ul>
+          <li>Big-endian: The order starts from the most-significant byte (MSB)</li>
+          <li>Little-endian: The order starts from the least-significant byte (LSB)</li>
+        </ul>
 
-    <h3>Floating-Point</h3>
-    <p>Floating-point numbers (such as float and double) are represented by their sign, fraction, and exponent. The IEEE Standard for Binary Floating-Point Arithmetic (IEEE 754) standard describes widely accepted floating-point number representation.</p>
+        <h3>Floating-Point</h3>
+        <p>Floating-point numbers (such as float and double) are represented by their sign, fraction, and exponent. The IEEE Standard for Binary Floating-Point Arithmetic (IEEE 754) standard describes widely accepted floating-point number representation.</p>
 
-    <h3>Strings and Variable-Size Data</h3>
-    <p>Strings and other variable-size data types can be serialized as a number, representing the length of the array or string, followed by size bytes: the actual data.</p>
+        <h3>Strings and Variable-Size Data</h3>
+        <p>Strings and other variable-size data types can be serialized as a number, representing the length of the array or string, followed by size bytes: the actual data.</p>
 
-    <ul>
-      <li><strong>Pascal String</strong>: Length-Prefixed (길이 저장 후 데이터)</li>
-      <li><strong>Null-Terminated</strong>: 종료 바이트 (\0) 사용</li>
-    </ul>
+        <ul>
+          <li><strong>Pascal String</strong>: Length-Prefixed (길이 저장 후 데이터)</li>
+          <li><strong>Null-Terminated</strong>: 종료 바이트 (\0) 사용</li>
+        </ul>
 
-    <h3>Bit-Packed Data</h3>
-    <p>Booleans can be represented either by using a single byte, or encoding true and false as 1 and 0 values. Since a boolean has only two values, using an entire byte for its representation is wasteful, and developers often batch boolean values together in groups of eight, each boolean occupying just one bit.</p>
+        <h3>Bit-Packed Data</h3>
+        <p>Booleans can be represented either by using a single byte, or encoding true and false as 1 and 0 values. Since a boolean has only two values, using an entire byte for its representation is wasteful, and developers often batch boolean values together in groups of eight, each boolean occupying just one bit.</p>
 
-    <h3>General Principles</h3>
-    <p>Usually, you start designing a file format by deciding how the addressing is going to be done: whether the file is going to be split into same-sized pages.</p>
+        <h3>General Principles</h3>
+        <p>Usually, you start designing a file format by deciding how the addressing is going to be done: whether the file is going to be split into same-sized pages.</p>
 
-    <h3>Page Structure</h3>
-    <p>Database systems store data records in data and index files. These files are partitioned into fixed-size units called pages, which often have a size of multiple filesystem blocks. Page sizes usually range from 4 to 16 Kb.</p>
+        <h3>Page Structure</h3>
+        <p>Database systems store data records in data and index files. These files are partitioned into fixed-size units called pages, which often have a size of multiple filesystem blocks. Page sizes usually range from 4 to 16 Kb.</p>
 
-    <h3>Slotted Pages</h3>
-    <p>When storing variable-size records, the main problem is free space management: reclaiming the space occupied by removed records. To simplify space management for variable-size records, we can use an organization technique called slotted page.</p>
+        <h3>Slotted Pages</h3>
+        <p>When storing variable-size records, the main problem is free space management: reclaiming the space occupied by removed records. To simplify space management for variable-size records, we can use an organization technique called slotted page.</p>
 
-    <h3>Cell Layout</h3>
-    <p>On a cell level, we have a distinction between key and key-value cells. Key cells hold a separator key and a pointer to the page between two neighboring pointers. Key-value cells hold keys and data records associated with them.</p>
+        <h3>Cell Layout</h3>
+        <p>On a cell level, we have a distinction between key and key-value cells. Key cells hold a separator key and a pointer to the page between two neighboring pointers. Key-value cells hold keys and data records associated with them.</p>
 
-    <h3>Versioning</h3>
-    <p>Database systems constantly evolve, and developers work to add features, and to fix bugs and performance issues. As a result of that, the binary file format can change. Most of the time, any storage engine version has to support more than one serialization format for backward compatibility.</p>
+        <h3>Versioning</h3>
+        <p>Database systems constantly evolve, and developers work to add features, and to fix bugs and performance issues. As a result of that, the binary file format can change. Most of the time, any storage engine version has to support more than one serialization format for backward compatibility.</p>
 
-    <h3>Checksumming</h3>
-    <p>Files on disk may get damaged or corrupted by software bugs and hardware failures. To identify these problems preemptively and avoid propagating corrupt data to other subsystems or even nodes, we can use checksums and cyclic redundancy checks (CRCs).</p>
+        <h3>Checksumming</h3>
+        <p>Files on disk may get damaged or corrupted by software bugs and hardware failures. To identify these problems preemptively and avoid propagating corrupt data to other subsystems or even nodes, we can use checksums and cyclic redundancy checks (CRCs).</p>
 
-    <table>
-      <tr><th>Type</th><th>Size</th><th>Speed</th><th>Use Case</th></tr>
-      <tr><td>XOR</td><td>1B</td><td>Very Fast</td><td>Simple verification</td></tr>
-      <tr><td>CRC32</td><td>4B</td><td>Fast</td><td>Most databases</td></tr>
-      <tr><td>SHA256</td><td>32B</td><td>Slow</td><td>Security critical</td></tr>
-    </table>
+        <table>
+          <tr><th>Type</th><th>Size</th><th>Speed</th><th>Use Case</th></tr>
+          <tr><td>XOR</td><td>1B</td><td>Very Fast</td><td>Simple verification</td></tr>
+          <tr><td>CRC32</td><td>4B</td><td>Fast</td><td>Most databases</td></tr>
+          <tr><td>SHA256</td><td>32B</td><td>Slow</td><td>Security critical</td></tr>
+        </table>
 
-    <h3>Summary</h3>
-    <p>In this chapter, we learned about binary data organization: how to serialize primitive data types, combine them into cells, build slotted pages out of cells, and navigate these structures. We learned how to handle variable-size data types such as strings, byte sequences, and arrays, and compose special cells that hold a size of values contained in them.</p>
-  </div>
+        <h3>Summary</h3>
+        <p>In this chapter, we learned about binary data organization: how to serialize primitive data types, combine them into cells, build slotted pages out of cells, and navigate these structures. We learned how to handle variable-size data types such as strings, byte sequences, and arrays, and compose special cells that hold a size of values contained in them.</p>
+    </section>
+</main>
 
-  <footer>
+<footer class="chapter-footer">
     <p>Database Internals - Chapter 3 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-  </footer>
+</footer>
 
-  <script>
+<script>
     mermaid.initialize({ startOnLoad: true, theme: 'default' });
     
     function searchChapter(query) {
       if (!query) return;
       window.find(query, false, false, true, false, true);
     }
-  </script>
+</script>
 </body>
 </html>

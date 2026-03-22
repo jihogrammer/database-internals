@@ -7,11 +7,13 @@
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-  <header>
-    <h1>Database Internals — Chapters</h1>
-    <p>O'Reilly "Database Internals" 책의 챕터별 정리 노트입니다. 한국어 요약과 원문을 함께 제공합니다.</p>
-    <input type="text" class="search-box" placeholder="Search chapters..." onkeyup="filterChapters(this.value)">
-  </header>
+  <div class="wrap">
+    <nav class="chapter-nav">
+      <div>
+        <h1>Database Internals — Chapters</h1>
+      </div>
+      <input type="text" class="search-box" placeholder="Search chapters..." onkeyup="filterChapters(this.value)">
+    </nav>
 
     <ul class="chapter-list" id="chapterList">
     <li class="chapter-item" data-keywords="b-tree basic fundamentals">
@@ -49,11 +51,19 @@
         CoW, Lazy, FD-Tree, Bw-Tree, Cache-oblivious B-Tree 등 B-Tree 변형 구조
       </div>
     </li>
+    <li class="chapter-item" data-keywords="lsm-tree write-optimized immutability compaction bloom-filter">
+      <a href="chapter-07.html">Chapter 7: LSM-Tree: Write Optimization and Immutability</a>
+      <div class="excerpt">
+        <span class="tag">LSM</span>
+        LSM-Tree의 구조, 컴팩션, 블룸 필터, B-Tree vs LSM 비교, Elasticsearch 적용
+      </div>
+    </li>
     </ul>
 
-  <footer>
-    <p>Database Internals - Blog | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-  </footer>
+    <footer>
+      <p>Database Internals - Blog | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
+    </footer>
+  </div>
 
   <script>
     function filterChapters(query) {
