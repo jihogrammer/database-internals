@@ -78,6 +78,7 @@
           <tr><td>Size-Tiered</td><td>크기 기반으로 레벨을 나누어 병합</td><td>단순함</td><td>쓰기 증폭 큼</td></tr>
           <tr><td>Leveled</td><td>레벨별로 SSTable을 관리</td><td>읽기 효율적</td><td>복잡함</td></tr>
         </table>
+        <p><strong>핵심 차이점:</strong> <em>Size-tiered는 쓰기 성능에, Leveled는 읽기 효율에 더 집중한 전략이다.</em> Size-tiered는 쓰기 속도를 우선하므로 읽기 시 더 많은 파일을 검색해야 하고, Leveled는 읽기 최적화를 위해 정교한 레벨 관리로 쓰기 증폭을 감수합니다.</p>
 
         <h3>7. Compaction 세부 사항</h3>
         <h4>Leveled Compaction (LevelDB, RocksDB 기본)</h4>
@@ -102,7 +103,7 @@
         <p>컴팩션 속도가 쓰기 속도를 못 따라가면 시스템은 스스로 쓰기 속도를 늦춥니다. 이는 시스템 붕괴를 막는 자기 보호 기법입니다.</p>
 
         <h3>8. Bloom Filter</h3>
-        <p>읽기 성능을 높이기 위해 SSTable에 Bloom Filter를 추가합니다. Bloom Filter는 키가 존재하지 않을 가능성을 빠르게 확인하여 불필요한 디스크 접근을 줄입니다.</p>
+        <p>읽기 성능을 높이기 위해 SSTable에 Bloom Filter를 추가합니다. Bloom Filter는 키가 <strong>존재하지 않을 경우 확실히 맞추지만</strong>, "있다"고 응답할 때는 실제로 없을 수도 있는(False Positive) 확률이 존재합니다. 따라서 Bloom Filter의 긍정 응답을 받으면 실제로 SSTable을 검색해야 합니다. 이러한 특성으로 불필요한 디스크 접근을 효과적으로 줄일 수 있습니다.</p>
 
         <h3>9. 희소 인덱스 (Sparse Index)</h3>
         <p>모든 키가 아닌 데이터 블록의 경계 키만 인덱싱하여 메모리 효율을 극대화합니다.</p>
@@ -156,12 +157,34 @@
         </ul>
 
         <h2>다이어그램</h2>
+
+        <h3>Write Path (쓰기 경로)</h3>
+        <div class="mermaid">
+        graph LR
+            A[Write Request] --> B["Write to WAL<br/>(순차 로그 기록)"]
+            B --> C["Add to MemTable<br/>(메모리 버퍼)"]
+            C --> D{MemTable Full?}
+            D -->|No| E["대기<br/>(계속 쓰기 수신)"]
+            D -->|Yes| F["Flush to SSTable<br/>(디스크 불변 파일)"]
+            F --> G["Background Compaction<br/>(병합 및 정리)"]
+            G --> H["Optimized SSTables"]
+        </div>
+
+        <h3>LSM-Tree 전체 구조</h3>
         <div class="mermaid">
         graph TD
             A[Write Request] --> B{MemTable Full?}
             B -->|No| C[Add to MemTable]
             B -->|Yes| D[Flush to SSTable]
-            D --> E[Background Compaction]
+            D --> E["Level 0 SSTables"]
+            E --> F["Background Compaction"]
+            F --> G["Level 1 SSTables"]
+            G --> H["Level 2+ SSTables"]
+
+            I[Read Request] --> J["Check MemTable"]
+            J --> K["Search SSTables<br/>newest first"]
+            K --> L["Use Bloom Filter<br/>to skip files"]
+            L --> M["Return Data"]
         </div>
 
         <h2>퀴즈</h2>
