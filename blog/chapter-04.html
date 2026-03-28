@@ -1,30 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Chapter 4: Implementing BTrees</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>4. B-Tree 구현 (Implementing BTrees) | Technical Blog</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
-<body class="chapter-body">
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-<nav class="chapter-nav">
-    <div>
-      <a href="index.html">← Home</a>
-      <a href="chapter-03.html">◀ Prev</a>
-      <a href="chapter-05.html">Next ▶</a>
-    </div>
-    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
-  </nav>
-
-<main>
-    <!-- 한국어 요약 -->
-    <section class="korean-summary">
-        <h1>4장 - B-Tree 구현 (Implementing BTrees)</h1>
-        <p class="meta">작성일: 2026-03-01</p>
-
-        <h2>개요</h2>
+        <main>
+            <article>
+                <h1 class="chapter-title">B-Tree 구현 (Implementing BTrees)</h1>
+                <div class="chapter-meta">
+                    Chapter 4 • 작성일: 2026-03-01
+                </div>
+                <div class="content">
+                    <h2>개요</h2>
         <p>이 장에서는 디스크 기반 B-Tree 구현에 특화된 개념들을 다룹니다.</p>
 
         <h2>페이지 헤더 (Page Header)</h2>
@@ -253,99 +253,25 @@
           </ul>
           <p>등을 다룹니다 — 모두 디스크 환경을 위한 구현 세부사항입니다.</p>
         </blockquote>
-    </section>
+                </div>
+            </article>
+        </main>
 
-    <!-- 원문 -->
-    <section class="original-text">
-        <h2>Original English Text</h2>
+        <nav class="pagination">
+            <div class="prev">
+                <a href="chapter-03.html">← 이전 장</a>
+                </div>
+            <div class="next">
+                <a href="chapter-05.html">다음 장 →</a>
+                </div>
+        </nav>
 
-        <h3>Chapter 4: Implementing BTrees</h3>
-        <p>In the previous chapter, we talked about general principles of binary format composition, and learned how to create cells, build hierarchies, and connect them to pages using pointers. These concepts are applicable for both in-place update and append-only storage structures. In this chapter, we discuss some concepts specific to B-Trees.</p>
-
-        <p>The sections in this chapter are split into three logical groups. First, we discuss organization: how to establish relationships between keys and pointers, and how to implement headers and links between pages.</p>
-        <p>Next, we discuss processes that occur during root-to-leaf descends, namely how to perform binary search and how to collect breadcrumbs and keep track of parent nodes in case we later have to split or merge nodes.</p>
-        <p>Lastly, we discuss optimization techniques (rebalancing, right-only appends, and bulk loading), maintenance processes, and garbage collection.</p>
-
-        <h3>Page Header</h3>
-        <p>The page header holds information about the page that can be used for navigation, maintenance, and optimizations. It usually contains flags that describe page contents and layout, number of cells in the page, lower and upper offsets marking the empty space, and other useful metadata.</p>
-        <p>For example, PostgreSQL stores the page size and layout version in the header. In MySQL InnoDB, page header holds the number of heap records, level, and some other implementation-specific values. In SQLite, page header stores the number of cells and a rightmost pointer.</p>
-
-        <h3>Magic Numbers</h3>
-        <p>One of the values often placed in the file or page header is a magic number. Usually, it's a multibyte block, containing a constant value that can be used to signal that the block represents a page, specify its kind, or identify its version.</p>
-        <p>Magic numbers are often used for validation and sanity checks.</p>
-
-        <h3>Sibling Links</h3>
-        <p>Some implementations store forward and backward links, pointing to the left and right sibling pages. These links help to locate neighboring nodes without having to ascend back to the parent.</p>
-
-        <h3>Rightmost Pointers</h3>
-        <p>B-Tree separator keys have strict invariants: they're used to split the tree into subtrees and navigate them, so there is always one more pointer to child pages than there are keys.</p>
-        <p>This extra pointer can be stored in the header as, for example, it is implemented in SQLite.</p>
-
-        <h3>Node High Keys</h3>
-        <p>We can take a slightly different approach and store the rightmost pointer in the cell along with the node high key. The high key represents the highest possible key that can be present in the subtree under the current node. This approach is used by PostgreSQL and is called Blink-Trees.</p>
-
-        <h3>Overflow Pages</h3>
-        <p>Node size and tree fanout values are fixed and do not change dynamically. To implement variable-size nodes without copying data to the new contiguous region, we can build nodes from multiple linked pages.</p>
-        <p>Most B-Tree implementations allow storing only up to a fixed number of payload bytes in the B-Tree node directly and spilling the rest to the overflow page.</p>
-
-        <h3>Binary Search</h3>
-        <p>We've already discussed the B-Tree lookup algorithm and mentioned that we locate a searched key within the node using the binary search algorithm. Binary search works only for sorted data.</p>
-
-        <h3>Binary Search with Indirection Pointers</h3>
-        <p>Cells in the B-Tree page are stored in the insertion order, and only cell offsets preserve the logical element order. To perform binary search through page cells, we pick the middle cell offset, follow its pointer to locate the cell, compare the key from this cell with the searched key.</p>
-
-        <h3>Propagating Splits and Merges</h3>
-        <p>As we've discussed in previous chapters, B-Tree splits and merges can propagate to higher levels. For that, we need to be able to traverse a chain back to the root node from the splitting leaf or a pair of merging leaves.</p>
-
-        <h3>Breadcrumbs</h3>
-        <p>Instead of storing and maintaining parent node pointers, it is possible to keep track of nodes traversed on the path to the target leaf node, and follow the chain of parent nodes in reverse order in case of cascading splits during inserts, or merges during deletes.</p>
-        <p>The most natural data structure for this is a stack. For example, PostgreSQL stores breadcrumbs in a stack, internally referenced as BTStack.</p>
-
-        <h3>Rebalancing</h3>
-        <p>Some B-Tree implementations attempt to postpone split and merge operations to amortize their costs by rebalancing elements within the level, or moving elements from more occupied nodes to less occupied ones.</p>
-        <p>B*-Trees keep distributing data between the neighboring nodes until both siblings are full. Then, instead of splitting a single node into two half-empty ones, the algorithm splits two nodes into three nodes, each of which is two-thirds full.</p>
-
-        <h3>Right-Only Appends</h3>
-        <p>Many database systems use auto-incremented monotonically increasing values as primary index keys. This case opens up an opportunity for an optimization, since all the insertions are happening toward the end of the index.</p>
-        <p>PostgreSQL is calling this case a fastpath. SQLite has a similar concept and calls it quickbalance.</p>
-
-        <h3>Bulk Loading</h3>
-        <p>If we have presorted data and want to bulk load it, or have to rebuild the tree, we can take the idea with right-only appends even further.</p>
-        <p>Since B-Trees are always built starting from the bottom (leaf) level, the complete leaf level can be written out before any higher-level nodes are composed.</p>
-
-        <h3>Compression</h3>
-        <p>Storing the raw, uncompressed data can induce significant overhead, and many databases offer ways to compress it to save space. The apparent trade-off here is between access speed and compression ratio.</p>
-        <p>Pages can be compressed and uncompressed independently from one another, allowing you to couple compression with page loading and flushing.</p>
-
-        <h3>Vacuum and Maintenance</h3>
-        <p>So far we've been mostly talking about user-facing operations in B-Trees. However, there are other processes that happen in parallel with queries that maintain storage integrity, reclaim space, reduce overhead, and keep pages in order.</p>
-        <p>The described design of slotted pages requires maintenance to be performed on pages to keep them in good shape.</p>
-        <p>B-Trees are navigated from the root level. Data records that can be reached by following pointers down from the root node are live (addressable). Nonaddressable data records are said to be garbage.</p>
-
-        <h3>Summary</h3>
-        <p>In this chapter, we discussed the concepts specific to on-disk B-Tree implementations, such as:</p>
-        <ul>
-          <li><strong>Page header</strong>: What information is usually stored there.</li>
-          <li><strong>Rightmost pointers</strong>: These are not paired with separator keys, and how to handle them.</li>
-          <li><strong>High keys</strong>: Determine the maximum allowed key that can be stored in the node.</li>
-          <li><strong>Overflow pages</strong>: Allow you to store oversize and variable-size records using fixed-size pages.</li>
-        </ul>
-        <p>After that, we went through some details related to root-to-leaf traversals: how to perform binary search with indirection pointers, how to keep track of tree hierarchies using parent pointers or breadcrumbs.</p>
-        <p>Lastly, we went through some optimization and maintenance techniques: rebalancing, right-only appends, bulk loading, and garbage collection.</p>
-    </section>
-</main>
-
-<footer class="chapter-footer">
-    <p>Database Internals - Chapter 4 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-</footer>
-
-<script>
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
-    
-    function searchChapter(query) {
-      if (!query) return;
-      window.find(query, false, false, true, false, true);
-    }
-</script>
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </body>
 </html>

@@ -133,7 +133,7 @@
             <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
             <nav class="main-nav">
                 <a href="index.html">홈</a>
-                <a href="https://github.com/사용자계정/저장소명" target="_blank">GitHub</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
             </nav>
         </header>
 
@@ -181,8 +181,40 @@
 - prev_chapter:
 - next_chapter:
 
+---
+
+## 6. CSS 통합 관리 (중요!)
+
+**원칙**: 모든 스타일은 `blog/styles.css`에서 중앙 집중식으로 관리합니다.
+
+### 6.1 index.html CSS 규칙
+- **방식**: `<link rel="stylesheet" href="./styles.css">` 를 `<head>` 에 포함
+- **구조**: HTML에 `<style>` 태그를 포함하지 않음 (오직 외부 링크만)
+- **변수**: `styles.css`의 `:root` 변수를 활용
+
+### 6.2 chapter-XX.html CSS 규칙
+- **방식**: `<link rel="stylesheet" href="./styles.css">` 를 `<head>` 에 포함
+- **구조**: 각 파일에 `<style>` 태그를 포함하지 않음 (외부 링크로 통합)
+- **주의**: chapter 파일들에 인라인 CSS를 추가하지 않고, styles.css에서 관리
+
+### 6.3 styles.css 통합 규칙
+- **구조**:
+  1. `:root` 색상 변수 정의 (라이트/다크 모드 모두)
+  2. 기본 스타일 (body, container, header 등)
+  3. 공통 컴포넌트 (pagination, footer, content 등)
+  4. index.html 고유 스타일 (chapter-list, search-box 등)
+  5. chapter-XX.html 고유 스타일 (.content, .chapter-title 등)
+
+### 6.4 중복 제거 체크리스트
+- [ ] 모든 chapter 파일의 inline `<style>` 태그 제거
+- [ ] 모든 chapter 파일에 `<link rel="stylesheet" href="./styles.css">` 추가
+- [ ] styles.css에 chapter 고유 스타일 통합
+- [ ] 색상 변수 일관성 확인 (모든 파일이 동일한 변수 사용)
+
+---
+
 ## 💡 팁: 더 효율적으로 사용하는 방법
 
 1.  **Date 자동화**: 프롬프트의 `{date}` 항목에 "오늘 날짜"를 넣어달라고 명시하면 LLM이 알아서 현재 날짜를 기입해 줍니다.
-2.  **색상 테마 변경**: `:root` 부분의 `--link`나 `--accent` 색상 코드만 변경하면 블로그의 전반적인 분위기를 쉽게 바꿀 수 있습니다.
-3.  **메인 페이지(`index.html`)와의 동기화**: 위 프롬프트로 만든 HTML 파일들이 쌓이면, `index.html`에도 동일한 CSS 변수(`:root`)를 사용하여 일관성을 유지하는 것이 좋습니다.
+2.  **색상 테마 변경**: `styles.css`의 `:root` 부분의 색상 코드만 변경하면 블로그 전체 분위기를 쉽게 바꿀 수 있습니다.
+3.  **CSS 관리**: index.html과 chapter-XX.html 모두 `styles.css`를 링크하여 중앙 집중식으로 관리합니다. 인라인 스타일 중복은 피하세요.

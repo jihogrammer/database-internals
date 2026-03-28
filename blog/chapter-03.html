@@ -1,30 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Chapter 3: File Formats</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3. 파일 포맷 (File Format) | Technical Blog</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
-<body class="chapter-body">
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-<nav class="chapter-nav">
-    <div>
-      <a href="index.html">← Home</a>
-      <a href="chapter-02.html">◀ Prev</a>
-      <a href="chapter-04.html">Next ▶</a>
-    </div>
-    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
-  </nav>
-
-<main>
-    <!-- 한국어 요약 -->
-    <section class="korean-summary">
-        <h1>3장 - 파일 포맷 (File Format)</h1>
-        <p class="meta">작성일: 2026-02-24</p>
-
-        <h2>개요</h2>
+        <main>
+            <article>
+                <h1 class="chapter-title">파일 포맷 (File Format)</h1>
+                <div class="chapter-meta">
+                    Chapter 3 • 작성일: 2026-02-24
+                </div>
+                <div class="content">
+                    <h2>개요</h2>
         <p>파일 포맷은 데이터베이스가 디스크에 데이터를 저장하는 방식을 정의합니다.</p>
         <p><strong>파일 포맷의 핵심 특성:</strong></p>
         <ul>
@@ -153,86 +153,25 @@
           <li>페이지 레이아웃: Slotted Page</li>
           <li>체크섬: CRC32 또는 SHA256</li>
         </ol>
-    </section>
+                </div>
+            </article>
+        </main>
 
-    <!-- 원문 -->
-    <section class="original-text">
-        <h2>Original English Text</h2>
+        <nav class="pagination">
+            <div class="prev">
+                <a href="chapter-02.html">← 이전 장</a>
+                </div>
+            <div class="next">
+                <a href="chapter-04.html">다음 장 →</a>
+                </div>
+        </nav>
 
-        <h3>Chapter 3: File Formats</h3>
-        <p>With the basic semantics of B-Trees covered, we are now ready to explore how exactly B-Trees and other structures are implemented on disk. We access the disk in a way that is different from how we access main memory: from an application developer's perspective, memory accesses are mostly transparent.</p>
-
-        <p>Disks are accessed using system calls. We usually have to specify the offset inside the target file, and then interpret on-disk representation into a form suitable for main memory.</p>
-
-        <p>This means that efficient on-disk structures have to be designed with this distinction in mind. To do that, we have to come up with a file format that's easy to construct, modify, and interpret.</p>
-
-        <h3>Binary Encoding</h3>
-        <p>To store data on disk efficiently, it needs to be encoded using a format that is compact and easy to serialize and deserialize. When talking about binary formats, you hear the word layout quite often.</p>
-
-        <h3>Primitive Types</h3>
-        <p>Keys and values have a type, such as integer, date, or string, and can be represented in their raw binary forms. Most numeric data types are represented as fixed-size values.</p>
-
-        <p><strong>Endianness:</strong></p>
-        <ul>
-          <li>Big-endian: The order starts from the most-significant byte (MSB)</li>
-          <li>Little-endian: The order starts from the least-significant byte (LSB)</li>
-        </ul>
-
-        <h3>Floating-Point</h3>
-        <p>Floating-point numbers (such as float and double) are represented by their sign, fraction, and exponent. The IEEE Standard for Binary Floating-Point Arithmetic (IEEE 754) standard describes widely accepted floating-point number representation.</p>
-
-        <h3>Strings and Variable-Size Data</h3>
-        <p>Strings and other variable-size data types can be serialized as a number, representing the length of the array or string, followed by size bytes: the actual data.</p>
-
-        <ul>
-          <li><strong>Pascal String</strong>: Length-Prefixed (길이 저장 후 데이터)</li>
-          <li><strong>Null-Terminated</strong>: 종료 바이트 (\0) 사용</li>
-        </ul>
-
-        <h3>Bit-Packed Data</h3>
-        <p>Booleans can be represented either by using a single byte, or encoding true and false as 1 and 0 values. Since a boolean has only two values, using an entire byte for its representation is wasteful, and developers often batch boolean values together in groups of eight, each boolean occupying just one bit.</p>
-
-        <h3>General Principles</h3>
-        <p>Usually, you start designing a file format by deciding how the addressing is going to be done: whether the file is going to be split into same-sized pages.</p>
-
-        <h3>Page Structure</h3>
-        <p>Database systems store data records in data and index files. These files are partitioned into fixed-size units called pages, which often have a size of multiple filesystem blocks. Page sizes usually range from 4 to 16 Kb.</p>
-
-        <h3>Slotted Pages</h3>
-        <p>When storing variable-size records, the main problem is free space management: reclaiming the space occupied by removed records. To simplify space management for variable-size records, we can use an organization technique called slotted page.</p>
-
-        <h3>Cell Layout</h3>
-        <p>On a cell level, we have a distinction between key and key-value cells. Key cells hold a separator key and a pointer to the page between two neighboring pointers. Key-value cells hold keys and data records associated with them.</p>
-
-        <h3>Versioning</h3>
-        <p>Database systems constantly evolve, and developers work to add features, and to fix bugs and performance issues. As a result of that, the binary file format can change. Most of the time, any storage engine version has to support more than one serialization format for backward compatibility.</p>
-
-        <h3>Checksumming</h3>
-        <p>Files on disk may get damaged or corrupted by software bugs and hardware failures. To identify these problems preemptively and avoid propagating corrupt data to other subsystems or even nodes, we can use checksums and cyclic redundancy checks (CRCs).</p>
-
-        <table>
-          <tr><th>Type</th><th>Size</th><th>Speed</th><th>Use Case</th></tr>
-          <tr><td>XOR</td><td>1B</td><td>Very Fast</td><td>Simple verification</td></tr>
-          <tr><td>CRC32</td><td>4B</td><td>Fast</td><td>Most databases</td></tr>
-          <tr><td>SHA256</td><td>32B</td><td>Slow</td><td>Security critical</td></tr>
-        </table>
-
-        <h3>Summary</h3>
-        <p>In this chapter, we learned about binary data organization: how to serialize primitive data types, combine them into cells, build slotted pages out of cells, and navigate these structures. We learned how to handle variable-size data types such as strings, byte sequences, and arrays, and compose special cells that hold a size of values contained in them.</p>
-    </section>
-</main>
-
-<footer class="chapter-footer">
-    <p>Database Internals - Chapter 3 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-</footer>
-
-<script>
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
-    
-    function searchChapter(query) {
-      if (!query) return;
-      window.find(query, false, false, true, false, true);
-    }
-</script>
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </body>
 </html>

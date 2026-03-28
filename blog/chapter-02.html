@@ -1,29 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Chapter 2: B-Tree Basics</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2. B-트리 개요 | Technical Blog</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
-<body class="chapter-body">
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-<nav class="chapter-nav">
-    <div>
-      <a href="index.html">← Home</a>
-      <a href="chapter-03.html">Next ▶</a>
-    </div>
-    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
-  </nav>
-
-<main>
-    <!-- 한국어 요약 -->
-    <section class="korean-summary">
-        <h1>2장 - B-트리 개요</h1>
-        <p class="meta">작성일: 2026-02-10</p>
-
-        <h2>개요</h2>
+        <main>
+            <article>
+                <h1 class="chapter-title">B-트리 개요</h1>
+                <div class="chapter-meta">
+                    Chapter 2 • 작성일: 2026-02-10
+                </div>
+                <div class="content">
+                    <h2>개요</h2>
         <p>B-트리(B-Tree)는 데이터베이스와 파일 시스템에서 널리 사용되는 자가-균형 이진 탐색 트리의 일반화된 형태입니다. 대규모 데이터셋을 효율적으로 저장하고 검색하기 위해 설계되었습니다.</p>
 
         <h2>핵심 개념</h2>
@@ -222,80 +223,24 @@
             Root["Empty tree"]
             style Root fill:#ffccbc
         </div>
-    </section>
+                </div>
+            </article>
+        </main>
 
-    <!-- 원문 -->
-    <section class="original-text">
-        <h2>Original English Text</h2>
+        <nav class="pagination">
+            <div class="prev">
+                </div>
+            <div class="next">
+                <a href="chapter-03.html">다음 장 →</a>
+                </div>
+        </nav>
 
-        <h3>Chapter 2: B-Tree Basics</h3>
-        <p>In the previous chapter, we separated storage structures in two groups: mutable and immutable ones, and identified immutability as one of the core concepts influencing their design and implementation. Most of the mutable storage structures use an in-place update mechanism. During insert, delete, or update operations, data records are updated directly in their locations in the target file.</p>
-
-        <p>Storage engines often allow multiple versions of the same data record to be present in the database; for example, when using multiversion concurrency control (see "Multiversion Concurrency Control") or slotted page organization (see "Slotted Pages"). For the sake of simplicity, for now we assume that each key is associated only with one data record, which has a unique location.</p>
-
-        <p>One of the most popular storage structures is a B-Tree. Many open source database systems are B-Tree based, and over the years they've proven to cover the majority of use cases.</p>
-
-        <p>B-Trees are not a recent invention: they were introduced by Rudolph Bayer and Edward M. McCreight back in 1971 and gained popularity over the years. By 1979, there were already quite a few variants of B-Trees.</p>
-
-        <h3>Binary Search Trees</h3>
-        <p>A binary search tree (BST) is a sorted in-memory data structure, used for efficient key-value lookups. BSTs consist of multiple nodes. Each tree node is represented by a key, a value associated with this key, and two child pointers (hence the name binary). BSTs start from a single node, called a root node. There can be only one root in the tree.</p>
-
-        <p>Each node splits the search space into left and right subtrees: a node key is greater than any key stored in its left subtree and less than any key stored in its right subtree.</p>
-
-        <h3>Tree Balancing</h3>
-        <p>Insert operations do not follow any specific pattern, and element insertion might lead to the situation where the tree is unbalanced (i.e., one of its branches is longer than the other one). The worst-case scenario is shown in where we end up with a pathological tree, which looks more like a linked list, and instead of desired logarithmic complexity, we get linear.</p>
-
-        <p>The balanced tree is defined as one that has a height of log2 N, where N is the total number of items in the tree, and the difference in height between the two subtrees is not greater than one. Without balancing, we lose performance benefits of the binary search tree structure, and allow insertions and deletions order to determine tree shape.</p>
-
-        <h3>Trees for Disk-Based Storage</h3>
-        <p>As previously mentioned, unbalanced trees have a worst-case complexity of O(N). Balanced trees give us an average O(log2 N). At the same time, due to low fanout (fanout is the maximum allowed number of children per node), we have to perform balancing, relocate nodes, and update pointers rather frequently. Increased maintenance costs make BSTs impractical as on-disk data structures.</p>
-
-        <p>If we wanted to maintain a BST on disk, we'd face several problems. One problem is locality: since elements are added in random order, there's no guarantee that a newly created node is written close to its parent, which means that node child pointers may span across several disk pages.</p>
-
-        <h3>Ubiquitous B-Trees</h3>
-        <p>B-Trees can be thought of as a vast catalog room in the library: you first have to pick the correct cabinet, then the correct shelf in that cabinet, then the correct drawer on the shelf, and then browse through the cards in the drawer to find the one you're searching for. Similarly, a B-Tree builds a hierarchy that helps to navigate and locate the searched items quickly.</p>
-
-        <p>B-Trees build upon the foundation of balanced search trees and are different in that they have higher fanout (have more child nodes) and smaller height.</p>
-
-        <h3>B-Tree Hierarchy</h3>
-        <p>B-Trees consist of multiple nodes. Each node holds up to N keys and N + 1 pointers to the child nodes. These nodes are logically grouped into three groups:</p>
-        <ul>
-          <li><strong>Root node</strong> - This has no parents and is the top of the tree.</li>
-          <li><strong>Leaf nodes</strong> - These are the bottom layer nodes that have no child nodes.</li>
-          <li><strong>Internal nodes</strong> - These are all other nodes, connecting root with leaves.</li>
-        </ul>
-
-        <h3>B+-Trees</h3>
-        <p>We're using the term B-Tree as an umbrella for a family of data structures. A more precise name for the described data structure is B+Tree.</p>
-        <p>B-Trees allow storing values on any level: in root, internal, and leaf nodes. B+-Trees store values only in leaf nodes. Internal nodes store only separator keys used to guide the search algorithm to the associated value stored on the leaf level.</p>
-
-        <h3>Separator Keys</h3>
-        <p>Keys stored in B-Tree nodes are called index entries, separator keys, or divider cells. They split the tree into subtrees (also called branches or subranges), holding corresponding key ranges. Keys are stored in sorted order to allow binary search.</p>
-
-        <h3>B-Tree Lookup Complexity</h3>
-        <p>B-Tree lookup complexity can be viewed from two standpoints: the number of block transfers and the number of comparisons done during the lookup.</p>
-        <p>In terms of number of transfers, the logarithm base is N (number of keys per node). During lookup, at most logK M pages are addressed to find a searched key.</p>
-
-        <h3>B-Tree Node Splits</h3>
-        <p>To insert the value into a B-Tree, we first have to locate the target leaf and find the insertion point. If the target node doesn't have enough room available, we say that the node has overflowed and has to be split in two to fit the new data.</p>
-        <p>Splits are done by allocating the new node, transferring half the elements from the splitting node to it, and adding its first key and pointer to the parent node.</p>
-
-        <h3>B-Tree Node Merges</h3>
-        <p>Deletions are done by first locating the target leaf. When the leaf is located, the key and the value associated with it are removed. If neighboring nodes have too few values, the sibling nodes are merged.</p>
-    </section>
-</main>
-
-<footer class="chapter-footer">
-    <p>Database Internals - Chapter 2 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-</footer>
-
-<script>
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
-    
-    function searchChapter(query) {
-      if (!query) return;
-      window.find(query, false, false, true, false, true);
-    }
-</script>
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </body>
 </html>

@@ -1,27 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Chapter 6: B-Tree Variants</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>6. B-Tree 변형 (B-Tree Variants) | Technical Blog</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
-<body class="chapter-body">
-  <nav class="chapter-nav">
-    <div>
-      <a href="index.html">← Home</a>
-      <a href="chapter-05.html">◀ Prev</a>
-      <a href="chapter-07.html">Next ▶</a>
-    </div>
-    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
-  </nav>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-  <section class="korean-summary">
-    <h1>6장 - B-Tree 변형 (B-Tree Variants)</h1>
-    <p class="meta">작성일: 2026-03-15</p>
-
-    <p>전통적인 B-Tree는 <strong>HDD(하드디스크)</strong> 환경에 최적화된 자료구조입니다. 하지만 SSD의 등장, 멀티코어 CPU의 확산은 B-Tree에게 새로운 변화를 요구했습니다. 5가지 변형 구조를 통해 데이터베이스 엔진이 어떻게 하드웨어의 한계를 극복하는지 정리합니다.</p>
+        <main>
+            <article>
+                <h1 class="chapter-title">B-Tree 변형 (B-Tree Variants)</h1>
+                <div class="chapter-meta">
+                    Chapter 6 • 작성일: 2026-03-15
+                </div>
+                <div class="content">
+                    <p>전통적인 B-Tree는 <strong>HDD(하드디스크)</strong> 환경에 최적화된 자료구조입니다. 하지만 SSD의 등장, 멀티코어 CPU의 확산은 B-Tree에게 새로운 변화를 요구했습니다. 5가지 변형 구조를 통해 데이터베이스 엔진이 어떻게 하드웨어의 한계를 극복하는지 정리합니다.</p>
 
     <h2>1. Copy-on-Write (CoW) B-Tree</h2>
     <blockquote class="chapter-blockquote">"데이터를 수정하지 말고, 새로운 페이지에 복제하라"</blockquote>
@@ -135,19 +138,25 @@
     <img src="figures/figure-6-7.png" alt="Figure 6-7">
     <img src="figures/figure-6-8.png" alt="Figure 6-8">
     <img src="figures/figure-6-9.png" alt="Figure 6-9">
+                </div>
+            </article>
+        </main>
 
-  </section>
+        <nav class="pagination">
+            <div class="prev">
+                <a href="chapter-05.html">← 이전 장</a>
+                </div>
+            <div class="next">
+                <a href="chapter-07.html">다음 장 →</a>
+                </div>
+        </nav>
 
-  <footer class="chapter-footer">
-    <p>Database Internals - Chapter 6 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-  </footer>
-
-  <script>
-    mermaid.initialize({startOnLoad:true});
-    function searchChapter(query) {
-      // Simple search function placeholder
-      console.log('Searching for:', query);
-    }
-  </script>
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </body>
 </html>

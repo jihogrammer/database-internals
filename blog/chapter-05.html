@@ -1,27 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>5장 — 트랜잭션 처리와 복구</title>
-  <link rel="stylesheet" href="./styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5. 트랜잭션 처리와 복구 | Technical Blog</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
-<body class="chapter-body">
-  <nav class="chapter-nav">
-    <div>
-      <a href="index.html">← Home</a>
-      <a href="chapter-04.html">◀ Prev</a>
-      <a href="chapter-06.html">Next ▶</a>
-    </div>
-    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
-  </nav>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-  <div class="korean-summary">
-    <h1>5장: 트랜잭션 처리와 복구</h1>
-    <p><strong>날짜:</strong> 2026-03-22</p>
-
-    <section id="intro">
+        <main>
+            <article>
+                <h1 class="chapter-title">트랜잭션 처리와 복구</h1>
+                <div class="chapter-meta">
+                    Chapter 5 • 작성일: 2026-03-22
+                </div>
+                <div class="content">
+                    <section id="intro">
       <p>이 장에서는 저수준 저장 구조에서 한 단계 올라가 트랜잭션을 가능하게 하는 핵심 구성 요소들을 설명합니다. 버퍼 관리, 락, 로그, 복구 같은 실무 중심 개념을 예시와 함께 블로그 형식으로 풀어갑니다.</p>
     </section>
 
@@ -215,19 +218,25 @@ commit(T1)
       <h3>비관적(락 기반) 제어</h3>
       <p>비관적 방식은 실행 중에 충돌을 막기 위해 락을 사용합니다. 대표적인 방법인 2단계 락(2PL)은 필요한 락을 먼저 확보한 뒤 작업을 끝내고 락을 해제합니다. 락은 경쟁과 교착 상태의 위험을 동반합니다.</p>
     </section>
-  </div>
+                </div>
+            </article>
+        </main>
 
-  <footer class="chapter-footer">
-    <p>Database Internals - Chapter 5 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-  </footer>
+        <nav class="pagination">
+            <div class="prev">
+                <a href="chapter-04.html">← 이전 장</a>
+                </div>
+            <div class="next">
+                <a href="chapter-06.html">다음 장 →</a>
+                </div>
+        </nav>
 
-  <script>
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
-
-    function searchChapter(query) {
-      if (!query) return;
-      window.find(query, false, false, true, false, true);
-    }
-  </script>
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </body>
 </html>

@@ -1,29 +1,30 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Chapter 7: LSM-Tree: Write Optimization and Immutability</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7. LSM-Tree: 쓰기 최적화와 불변성 | Technical Blog</title>
     <link rel="stylesheet" href="./styles.css">
     <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
 </head>
-<body class="chapter-body">
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/jihogrammer/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-<nav class="chapter-nav">
-    <div>
-      <a href="index.html">← Home</a>
-      <a href="chapter-06.html">◀ Prev</a>
-    </div>
-    <input type="text" class="chapter-search-box" placeholder="Search..." onkeyup="searchChapter(this.value)">
-  </nav>
-
-<main>
-    <!-- 한국어 요약 -->
-    <section class="korean-summary">
-        <h1>7장 - LSM-Tree: 쓰기 최적화와 불변성</h1>
-        <p class="meta">작성일: 2026-03-22</p>
-
-        <h2>개요</h2>
+        <main>
+            <article>
+                <h1 class="chapter-title">LSM-Tree: 쓰기 최적화와 불변성</h1>
+                <div class="chapter-meta">
+                    Chapter 7 • 작성일: 2026-03-22
+                </div>
+                <div class="content">
+                    <h2>개요</h2>
         <p>LSM-Tree(Log-Structured Merge Tree)는 B-Tree의 대안으로, 쓰기 성능을 극대화하기 위해 설계된 데이터 구조입니다. 불변성(Immutability)을 기반으로 하여 쓰기 작업을 순차적으로 처리하고, 배경에서 병합을 수행합니다.</p>
 
         <h2>배경: 하드웨어의 진화와 자연선택설</h2>
@@ -194,74 +195,24 @@
           <li><strong>B-Tree와 LSM-Tree의 차이점은?</strong><br>답변: B-Tree는 읽기 최적화, LSM-Tree는 쓰기 최적화로, LSM-Tree는 불변성과 배경 병합을 사용합니다.</li>
           <li><strong>Elasticsearch에서 LSM 트리 구조를 채택한 이유는?</strong><br>답변: 쓰기 최적화와 불변성을 통해 실시간 인덱싱과 검색을 지원합니다.</li>
         </ul>
-    </section>
+                </div>
+            </article>
+        </main>
 
-    <!-- 원문 -->
-    <section class="original-text">
-        <h2>Original English Text</h2>
+        <nav class="pagination">
+            <div class="prev">
+                <a href="chapter-06.html">← 이전 장</a>
+                </div>
+            <div class="next">
+                </div>
+        </nav>
 
-        <h3>Chapter 7: LSM-Tree: Write Optimization and Immutability</h3>
-        <p>In the previous chapters, we discussed B-Trees and their variants. B-Trees are optimized for read-heavy workloads and provide good performance for random reads. However, they suffer from poor write performance due to random I/O. LSM-Trees address this limitation by optimizing for write-heavy workloads.</p>
-
-        <p>LSM-Trees are based on the principle of immutability. Instead of modifying data in place, LSM-Trees create new versions of data structures. This approach allows for sequential writes, which are much faster on modern storage devices.</p>
-
-        <p>The core idea behind LSM-Trees is to buffer writes in memory and periodically flush them to disk in sorted order. Background processes then merge these sorted files to maintain efficient read performance.</p>
-
-        <h3>LSM-Tree Components</h3>
-        <ul>
-          <li><strong>MemTable:</strong> An in-memory data structure that buffers recent writes.</li>
-          <li><strong>SSTable:</strong> Immutable, sorted files on disk.</li>
-          <li><strong>Write-Ahead Log (WAL):</strong> Ensures durability for in-memory data.</li>
-          <li><strong>Compaction:</strong> Merges SSTables to reduce read overhead.</li>
-        </ul>
-
-        <h3>Write Path</h3>
-        <ol>
-          <li>Write to WAL for durability.</li>
-          <li>Insert into MemTable.</li>
-          <li>When MemTable is full, flush to SSTable.</li>
-        </ol>
-
-        <h3>Read Path</h3>
-        <ol>
-          <li>Check MemTable.</li>
-          <li>Search SSTables in order (newest first).</li>
-          <li>Use bloom filters to skip irrelevant files.</li>
-        </ol>
-
-        <h3>Compaction Strategies</h3>
-        <p>Compaction is crucial for maintaining performance. Different strategies include size-tiered and leveled compaction, each with trade-offs in write amplification and read performance.</p>
-
-        <h3>Advantages</h3>
-        <ul>
-          <li>High write throughput due to sequential I/O.</li>
-          <li>Efficient for large datasets.</li>
-          <li>Simpler crash recovery.</li>
-        </ul>
-
-        <h3>Disadvantages</h3>
-        <ul>
-          <li>Higher read latency due to multiple file searches.</li>
-          <li>Increased space usage during compaction.</li>
-          <li>Complex tuning of compaction parameters.</li>
-        </ul>
-
-        <h3>Use Cases</h3>
-        <p>LSM-Trees are ideal for write-heavy applications like time-series databases, logging systems, and analytics platforms.</p>
-    </section>
-</main>
-
-<footer class="chapter-footer">
-    <p>Database Internals - Chapter 7 | <a href="https://github.com/anomalyco/database-internals">GitHub</a></p>
-</footer>
-
-<script>
-    mermaid.initialize({ startOnLoad: true, theme: 'default' });
-
-    function searchChapter(query) {
-      if (!query) return;
-      window.find(query, false, false, true, false, true);
-    }
-</script>
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
 </body>
 </html>
