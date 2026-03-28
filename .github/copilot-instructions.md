@@ -22,7 +22,7 @@
 
 ## 3. HTML 구조 및 스타일 (Fixed Template)
 
-반드시 아래의 구조와 CSS를 그대로 사용하세요.
+반드시 아래의 구조와 스타일 링크를 그대로 사용하세요. **CSS는 외부 파일(`styles.css`)에서 관리하며, 각 HTML 파일은 이를 링크합니다.**
 
 ```html
 <!DOCTYPE html>
@@ -31,72 +31,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{chapter_number}. {chapter_title} | Technical Blog</title>
-    <style>
-        :root {
-            --bg: #ffffff;
-            --text: #1a1a1a;
-            --secondary-text: #666666;
-            --link: #0969da;
-            --border: #d0d7de;
-            --code-bg: #f6f8fa;
-            --accent: #218bff;
-        }
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg: #0d1117;
-                --text: #c9d1d9;
-                --secondary-text: #8b949e;
-                --link: #58a6ff;
-                --border: #30363d;
-                --code-bg: #161b22;
-            }
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            line-height: 1.7;
-            -webkit-font-smoothing: antialiased;
-        }
-        .container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; }
-        
-        /* Header */
-        header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2.5rem; }
-        .blog-title a { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: var(--text); }
-        .main-nav { margin-top: 0.8rem; display: flex; gap: 1rem; }
-        .main-nav a { font-size: 0.95rem; text-decoration: none; color: var(--secondary-text); transition: color 0.2s; }
-        .main-nav a:hover { color: var(--link); }
+    <link rel="stylesheet" href="./styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1 class="blog-title"><a href="index.html">기술 블로그</a></h1>
+            <nav class="main-nav">
+                <a href="index.html">홈</a>
+                <a href="https://github.com/anomalyco/database-internals" target="_blank">GitHub</a>
+            </nav>
+        </header>
 
-        /* Article */
-        .chapter-title { font-size: 2.2rem; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.02em; }
-        .chapter-meta { font-size: 0.9rem; color: var(--secondary-text); margin-bottom: 2rem; }
-        
-        .content h2 { font-size: 1.7rem; margin: 2.5rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; }
-        .content h3 { font-size: 1.35rem; margin: 1.8rem 0 0.8rem; }
-        .content p { margin-bottom: 1.2rem; }
-        .content a { color: var(--link); text-decoration: none; border-bottom: 1px solid transparent; }
-        .content a:hover { border-bottom: 1px solid var(--link); }
-        .content ul, .content ol { margin: 1rem 0 1.5rem 1.5rem; }
-        .content li { margin-bottom: 0.4rem; }
-        
-        /* Code Styling */
-        .content pre { 
-            background-color: var(--code-bg); 
-            padding: 1.2rem; 
-            border-radius: 8px; 
-            overflow-x: auto; 
-            margin: 1.5rem 0; 
-            border: 1px solid var(--border);
-        }
-        .content code { 
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; 
-            font-size: 0.85em; 
-            padding: 0.2em 0.4em; 
-            background-color: var(--code-bg); 
-            border-radius: 4px; 
-        }
-        .content pre code { padding: 0; background: none; font-size: 0.9rem; }
+        <main>
+            <article>
+                <h1 class="chapter-title">{chapter_title}</h1>
+                <div class="chapter-meta">
+                    Chapter {chapter_number} • 작성일: {date}
+                </div>
+                <div class="content">
+                    {content_html}
+                </div>
+            </article>
+        </main>
+
+        <nav class="pagination">
+            <div class="prev">
+                {prev_link}
+            </div>
+            <div class="next">
+                {next_link}
+            </div>
+        </nav>
+
+        <footer>
+            <p>&copy; 2026 기술 블로그. Built with GitHub Pages.</p>
+        </footer>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'default' });
+    </script>
+</body>
+</html>
+```
+
+### 주요 포인트
+- **CSS 파일**: `styles.css`에서 중앙 집중식으로 관리 (각 파일에 인라인 CSS 금지)
+- **Mermaid**: 다이어그램이 있으면 `<script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>` 포함
+- **상대 경로**: 모든 링크는 상대 경로 사용 (`./styles.css`, `index.html`, `chapter-{XX}.html`)
 
         .content blockquote { 
             border-left: 4px solid var(--accent); 
@@ -218,3 +201,69 @@
 1.  **Date 자동화**: 프롬프트의 `{date}` 항목에 "오늘 날짜"를 넣어달라고 명시하면 LLM이 알아서 현재 날짜를 기입해 줍니다.
 2.  **색상 테마 변경**: `styles.css`의 `:root` 부분의 색상 코드만 변경하면 블로그 전체 분위기를 쉽게 바꿀 수 있습니다.
 3.  **CSS 관리**: index.html과 chapter-XX.html 모두 `styles.css`를 링크하여 중앙 집중식으로 관리합니다. 인라인 스타일 중복은 피하세요.
+
+---
+
+## 7. 마크다운 → HTML 변환 규칙
+
+모든 콘텐츠는 마크다운에서 HTML로 **완전히 변환**되어야 합니다. 브라우저에서 마크다운 문법(`##`, `**`, `|` 등)이 노출되면 안 됩니다.
+
+### 7.1 블록 요소 변환
+| 마크다운 | HTML | 예시 |
+|---------|------|------|
+| `## 제목` | `<h2>제목</h2>` | 섹션 제목 |
+| `### 부제목` | `<h3>부제목</h3>` | 세부 섹션 |
+| 일반 텍스트 | `<p>텍스트</p>` | 본문 단락 |
+| 빈 줄로 구분된 문단 | `</p><p>` | 연속 단락 |
+| `` ``` ``코드 블록`` ``` `` | `<pre><code>코드</code></pre>` | 코드 예시 |
+| `` ```mermaid ``다이어그램`` ``` `` | `<pre class="mermaid">다이어그램</pre>` | Mermaid 그래프 |
+| `- 항목 1` | `<ul><li>항목 1</li></ul>` | 정렬되지 않은 리스트 |
+| `1. 항목 1` | `<ol><li>항목 1</li></ol>` | 정렬된 리스트 |
+| `> 인용문` | `<blockquote>인용문</blockquote>` | 인용 또는 주의 |
+
+### 7.2 인라인 요소 변환
+| 마크다운 | HTML | 예시 |
+|---------|------|------|
+| `**텍스트**` | `<strong>텍스트</strong>` | 강조 |
+| `*텍스트*` | `<em>텍스트</em>` | 이탤릭 |
+| `` `코드` `` | `<code>코드</code>` | 인라인 코드 |
+| `[링크](url)` | `<a href="url">링크</a>` | 외부 링크 |
+
+### 7.3 테이블 변환
+마크다운 테이블:
+```
+| 열1 | 열2 |
+|-----|-----|
+| 셀1 | 셀2 |
+```
+
+HTML 테이블:
+```html
+<table>
+  <thead>
+    <tr><th>열1</th><th>열2</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>셀1</td><td>셀2</td></tr>
+  </tbody>
+</table>
+```
+
+### 7.4 일반 규칙
+- 모든 마크다운 문법은 HTML 태그로 변환되어야 함
+- 코드 블록의 언어 지정 (``bash``, ``json`` 등)은 무시하고 `<pre><code>` 태그만 사용
+- Mermaid 다이어그램은 `<pre class="mermaid">...</pre>` 형태로 유지
+- 빈 줄은 `<p>` 분리로 처리 (실제 `<br />` 삽입하지 않음)
+- 중첩 리스트는 `<li>` 내 `<ul>/<ol>` 형태로 변환
+
+### 7.5 QA 체크리스트
+- [ ] 헤더가 `<h2>`, `<h3>` 태그 형태
+- [ ] 본문이 `<p>` 태그에 감싸짐
+- [ ] 강조(`**`)가 `<strong>` 형태
+- [ ] 이탤릭(`*`)이 `<em>` 형태
+- [ ] 테이블이 HTML `<table>` 형태 (마크다운 파이프 `|` 보이지 않음)
+- [ ] 리스트가 `<ul>/<li>` 또는 `<ol>/<li>` 형태
+- [ ] 코드 블록이 `<pre><code>` 형태
+- [ ] Mermaid 다이어그램이 `<pre class="mermaid">` 형태
+- [ ] 인라인 코드 (`` ` ``)가 `<code>` 형태
+- [ ] 링크(`[](url)`)가 `<a href="url">` 형태
