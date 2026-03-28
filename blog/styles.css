@@ -1,154 +1,142 @@
-/* Shared blog styles for index and chapter pages */
+/* Shared blog styles for index and chapter pages - Light theme only */
 :root{
-  --bg:#fafbff; --card:#ffffff; --text:#0b1220; --muted:#475569; --accent:#0b74de;
-  --radius:10px; --maxw:980px; --mono:SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
-  /* Chapter page variables */
-  --chapter-bg: #ffffff;
-  --chapter-text: #1a1a1a;
-  --chapter-secondary: #666666;
-  --chapter-link: #0969da;
-  --chapter-border: #d0d7de;
-  --chapter-code-bg: #f6f8fa;
-  --chapter-accent: #218bff;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --chapter-bg: #0d1117;
-    --chapter-text: #c9d1d9;
-    --chapter-secondary: #8b949e;
-    --chapter-link: #58a6ff;
-    --chapter-border: #30363d;
-    --chapter-code-bg: #161b22;
-  }
+  /* Unified light theme colors */
+  --bg: #ffffff;
+  --card: #ffffff;
+  --text: #1a1a1a;
+  --secondary-text: #4a5568;
+  --accent: #0969da;
+  --border: #e2e8f0;
+  --code-bg: #f7fafc;
+  --radius: 10px;
+  --maxw: 980px;
+  --mono: SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace;
 }
 
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;padding:0}
 body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
 .wrap{max-width:var(--maxw);margin:24px auto;padding:20px}
-header{background:var(--card);border:1px solid #e6eefc;border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
-h1{font-size:22px;margin:0;font-weight:700;color:#0b1220}
-.meta{color:var(--muted);font-size:13px}
+header{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:18px 20px;display:flex;align-items:center;gap:18px;margin-bottom:24px}
+h1{font-size:22px;margin:0;font-weight:700;color:var(--text)}
+.meta{color:var(--secondary-text);font-size:13px}
 .pill{display:inline-block;padding:6px 10px;background:#eef4ff;color:var(--accent);border-radius:999px;font-size:12px;margin-left:6px}
 .grid{display:grid;grid-template-columns:1fr 300px;gap:28px;margin-top:18px}
-main.article{background:var(--card);padding:22px;border-radius:10px;box-shadow:0 8px 20px rgba(12,33,72,0.06)}
+main.article{background:var(--card);padding:22px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.08)}
 aside{padding:6px}
-h2{font-size:18px;margin:18px 0 8px}
-h3{font-size:15px;margin:12px 0 6px}
-p{margin:0 0 12px}
-pre{background:#f0f0f0;color:#000;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
-code{background:#f1f5f9;padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
+h2{font-size:18px;margin:18px 0 8px;color:var(--text)}
+h3{font-size:15px;margin:12px 0 6px;color:var(--text)}
+p{margin:0 0 12px;color:var(--text)}
+pre{background:var(--code-bg);color:var(--text);padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px;border:1px solid var(--border)}
+code{background:var(--code-bg);padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px;color:var(--text)}
 figure{margin:14px 0}
-figcaption{color:var(--muted);font-size:13px}
+figcaption{color:var(--secondary-text);font-size:13px}
 .toc-list{list-style:none;padding:0;margin:0;font-size:14px}
 .toc-list a{color:var(--accent);text-decoration:none}
 .chapter-list{list-style:none;padding:0;margin:0}
-.chapter-item{background:var(--card);border:1px solid #e6eefc;border-radius:8px;padding:12px;margin-bottom:12px;transition: all 0.3s ease;}
+.chapter-item{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;transition: all 0.3s ease;}
 .chapter-item:hover{box-shadow: 0 4px 12px rgba(0,0,0,0.1);transform: translateY(-2px);}
-.chapter-item a{color:#2c5282;font-size:1.05em;font-weight:600;text-decoration:none;transition: color 0.3s;}
-.chapter-item a:hover{color:var(--accent);}
-.chapter-item .excerpt{color:#718096;font-size:0.95rem;margin-top:6px}
+.chapter-item a{color:var(--accent);font-size:1.05em;font-weight:600;text-decoration:none;transition: color 0.3s;}
+.chapter-item a:hover{color:#0859c7}
+.chapter-item .excerpt{color:var(--secondary-text);font-size:0.95rem;margin-top:6px}
 .tag{display:inline-block;padding:4px 8px;border-radius:12px;font-size:0.8em;font-weight:500;margin-right:8px;}
 .tag:nth-child(1){background:#e0f2fe;color:#0369a1;} /* 기초 */
 .tag:nth-child(2){background:#fef3c7;color:#92400e;} /* 파일 포맷 */
 .tag:nth-child(3){background:#dcfce7;color:#166534;} /* 구현 */
 .tag:nth-child(4){background:#fce7f3;color:#be185d;} /* 트랜잭션 */
 .tag:nth-child(5){background:#f3e8ff;color:#7c3aed;} /* 변형 */
-.search-box{border:1px solid #e6eefc;border-radius:8px;padding:8px 12px;font-size:1em;width:100%;max-width:300px;transition: border-color 0.3s;}
+.search-box{border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:1em;width:100%;max-width:300px;transition: border-color 0.3s;background:var(--card);color:var(--text)}
 .search-box:focus{border-color:var(--accent);outline:none;}
-footer{color:var(--muted);font-size:13px;margin-top:18px}
+footer{color:var(--secondary-text);font-size:13px;margin-top:18px}
 @media (max-width:920px){.grid{grid-template-columns:1fr}aside{order:-1;margin-bottom:12px}}
 
-/* Code block visual sanity overrides to harmonize Highlight.js with site styles */
-/* Make the pre element the primary container and keep .hljs/theme transparent */
-pre{background:#f0f0f0;color:#000;padding:12px;border-radius:8px;overflow:auto;font-family:var(--mono);font-size:13px}
+/* Code block highlighting (Highlight.js) */
 pre code, pre .hljs{background:transparent !important;padding:0 !important;display:block;color:inherit}
-code{background:rgba(241,245,249,0.06);padding:2px 6px;border-radius:6px;font-family:var(--mono);font-size:13px}
 .hljs{background:transparent !important;color:inherit}
-.hljs-comment,.hljs-quote{color:#9aa4b2}
-.hljs-keyword,.hljs-selector-tag,.hljs-subst{color:#7dd3fc}
-.hljs-built_in,.hljs-type{color:#c084fc}
-.hljs-literal,.hljs-number,.hljs-params{color:#f472b6}
-.hljs-string,.hljs-template-string{color:#34d399}
-.hljs-title,.hljs-section{color:#f59e0b}
+.hljs-comment,.hljs-quote{color:#8b949e}
+.hljs-keyword,.hljs-selector-tag,.hljs-subst{color:#0969da}
+.hljs-built_in,.hljs-type{color:#8b5cf6}
+.hljs-literal,.hljs-number,.hljs-params{color:#d91e63}
+.hljs-string,.hljs-template-string{color:#10b981}
+.hljs-title,.hljs-section{color:#ea580c}
 
-/* Chapter page styles (for old chapter-body class) */
-.chapter-body{max-width:960px;margin:0 auto;padding:20px;line-height:1.6;color:#222;background:#fafafa}
-.chapter-body h1{color:#1a365d;border-bottom:3px solid #3182ce;padding-bottom:10px}
-.chapter-body h2{color:#2c5282;margin-top:2em;border-left:4px solid #3182ce;padding-left:12px}
-.chapter-body h3{color:#2b6cb0}
-.chapter-body pre{background:#f0f0f0;color:#000;padding:12px;border-radius:6px;overflow-x:auto;font-size:0.9em}
-.chapter-body code{background:#edf2f7;padding:2px 6px;border-radius:3px;font-size:0.9em}
-.chapter-body table{border-collapse:collapse;width:100%;margin:1em 0;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.1)}
-.chapter-body th,.chapter-body td{border:1px solid #e2e8f0;padding:8px 12px;text-align:left}
-.chapter-body th{background:#edf2f7;font-weight:600}
-.chapter-body tr:nth-child(even){background:#f7fafc}
-.korean-summary{background:#fff;border:1px solid #cbd5e0;border-radius:8px;padding:20px;margin-bottom:2em;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
-.korean-summary h1{font-size:1.5em;margin-top:0}
-.original-text{background:#fff;border:1px solid #e2e8f0;padding:20px;margin-top:2em;border-radius:8px}
-.original-text h2{color:#553c9a;border-left-color:#805ad5}
-.chapter-nav{background:#2c5282;color:#fff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
-.chapter-nav a{color:#fff;text-decoration:none;padding:6px 12px;background:#3182ce;border-radius:4px;margin:0 4px}
-.chapter-nav a:hover{background:#2c5282}
-.chapter-search-box{background:#fff;border-radius:4px;padding:6px 12px;border:none}
-.chapter-search-box::placeholder{color:#a0aec0}
-.chapter-footer{text-align:center;margin-top:40px;color:#718096;font-size:0.9em}
-.mermaid{background:#fff;padding:10px;border-radius:8px;margin:10px 0}
-.chapter-blockquote{background:#f7fafc;border-left:4px solid #805ad5;margin:1em 0;padding:10px 15px;color:#4a5568}
+/* Chapter page styles (backward compatibility) */
+.chapter-body{max-width:960px;margin:0 auto;padding:20px;line-height:1.6;color:var(--text);background:var(--bg)}
+.chapter-body h1{color:var(--text);border-bottom:1px solid var(--border);padding-bottom:10px}
+.chapter-body h2{color:var(--text);margin-top:2em;border-left:4px solid var(--accent);padding-left:12px}
+.chapter-body h3{color:var(--text)}
+.chapter-body pre{background:var(--code-bg);color:var(--text);padding:12px;border-radius:6px;overflow-x:auto;font-size:0.9em;border:1px solid var(--border)}
+.chapter-body code{background:var(--code-bg);padding:2px 6px;border-radius:3px;font-size:0.9em;color:var(--text)}
+.chapter-body table{border-collapse:collapse;width:100%;margin:1em 0;background:var(--card)}
+.chapter-body th,.chapter-body td{border:1px solid var(--border);padding:8px 12px;text-align:left;color:var(--text)}
+.chapter-body th{background:var(--code-bg);font-weight:600}
+.korean-summary{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:20px;margin-bottom:2em;box-shadow:0 2px 4px rgba(0,0,0,0.05)}
+.korean-summary h1{font-size:1.5em;margin-top:0;color:var(--text)}
+.original-text{background:var(--card);border:1px solid var(--border);padding:20px;margin-top:2em;border-radius:8px;color:var(--text)}
+.original-text h2{color:var(--accent);border-left-color:var(--accent)}
+.chapter-nav{background:var(--accent);color:#ffffff;padding:12px 20px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.chapter-nav a{color:#ffffff;text-decoration:none;padding:6px 12px;background:rgba(255,255,255,0.2);border-radius:4px;margin:0 4px}
+.chapter-nav a:hover{background:rgba(255,255,255,0.3)}
+.chapter-search-box{background:var(--card);border-radius:4px;padding:6px 12px;border:1px solid var(--border);color:var(--text)}
+.chapter-search-box::placeholder{color:var(--secondary-text)}
+.chapter-footer{text-align:center;margin-top:40px;color:var(--secondary-text);font-size:0.9em}
+.mermaid{background:var(--card);padding:10px;border-radius:8px;margin:10px 0;border:1px solid var(--border)}
+.chapter-blockquote{background:var(--code-bg);border-left:4px solid var(--accent);margin:1em 0;padding:10px 15px;color:var(--secondary-text)}
 
 /* Styles for new chapter template (chapter-02.html format) */
-.container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; }
+.container { max-width: 820px; margin: 0 auto; padding: 2rem 1.5rem; background: var(--bg); color: var(--text); }
 
 /* Chapter header for new template */
-.container header { border-bottom: 1px solid var(--chapter-border); padding-bottom: 1.5rem; margin-bottom: 2.5rem; background: transparent; }
-.container .blog-title a { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: var(--chapter-text); }
+.container header { border-bottom: 1px solid var(--border); padding-bottom: 1.5rem; margin-bottom: 2.5rem; background: transparent; box-shadow: none; }
+.container .blog-title a { font-size: 1.5rem; font-weight: 700; text-decoration: none; color: var(--text); }
 .container .main-nav { margin-top: 0.8rem; display: flex; gap: 1rem; }
-.container .main-nav a { font-size: 0.95rem; text-decoration: none; color: var(--chapter-secondary); transition: color 0.2s; }
-.container .main-nav a:hover { color: var(--chapter-link); }
+.container .main-nav a { font-size: 0.95rem; text-decoration: none; color: var(--secondary-text); transition: color 0.2s; }
+.container .main-nav a:hover { color: var(--accent); }
 
 /* Chapter content styles */
-.chapter-title { font-size: 2.2rem; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.02em; color: var(--chapter-text); }
-.chapter-meta { font-size: 0.9rem; color: var(--chapter-secondary); margin-bottom: 2rem; }
+.chapter-title { font-size: 2.2rem; line-height: 1.3; margin-bottom: 0.5rem; letter-spacing: -0.02em; color: var(--text); }
+.chapter-meta { font-size: 0.9rem; color: var(--secondary-text); margin-bottom: 2rem; }
 
-.content { color: var(--chapter-text); background-color: var(--chapter-bg); }
-.content h2 { font-size: 1.7rem; margin: 2.5rem 0 1rem; border-bottom: 1px solid var(--chapter-border); padding-bottom: 0.3rem; color: var(--chapter-text); }
-.content h3 { font-size: 1.35rem; margin: 1.8rem 0 0.8rem; color: var(--chapter-text); }
-.content p { margin-bottom: 1.2rem; color: var(--chapter-text); }
-.content a { color: var(--chapter-link); text-decoration: none; border-bottom: 1px solid transparent; }
-.content a:hover { border-bottom: 1px solid var(--chapter-link); }
+.content { color: var(--text); background-color: var(--bg); }
+.content h2 { font-size: 1.7rem; margin: 2.5rem 0 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; color: var(--text); }
+.content h3 { font-size: 1.35rem; margin: 1.8rem 0 0.8rem; color: var(--text); }
+.content p { margin-bottom: 1.2rem; color: var(--text); }
+.content a { color: var(--accent); text-decoration: none; border-bottom: 1px solid transparent; }
+.content a:hover { border-bottom: 1px solid var(--accent); }
 .content ul, .content ol { margin: 1rem 0 1.5rem 1.5rem; }
-.content li { margin-bottom: 0.4rem; }
+.content li { margin-bottom: 0.4rem; color: var(--text); }
 
 /* Code styling for chapter content */
 .content pre {
-    background-color: var(--chapter-code-bg);
+    background-color: var(--code-bg);
     padding: 1.2rem;
     border-radius: 8px;
     overflow-x: auto;
     margin: 1.5rem 0;
-    border: 1px solid var(--chapter-border);
+    border: 1px solid var(--border);
+    color: var(--text);
 }
 .content code {
-    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    font-family: var(--mono);
     font-size: 0.85em;
     padding: 0.2em 0.4em;
-    background-color: var(--chapter-code-bg);
+    background-color: var(--code-bg);
     border-radius: 4px;
+    color: var(--text);
 }
 .content pre code { padding: 0; background: none; font-size: 0.9rem; }
 
 .content blockquote {
-    border-left: 4px solid var(--chapter-accent);
+    border-left: 4px solid var(--accent);
     padding-left: 1rem;
-    color: var(--chapter-secondary);
+    color: var(--secondary-text);
     font-style: italic;
     margin: 1.5rem 0;
 }
-.content img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; border: 1px solid var(--chapter-border); }
+.content img { max-width: 100%; height: auto; border-radius: 8px; margin: 1.5rem 0; border: 1px solid var(--border); }
 .content table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.95rem; }
-.content th, .content td { border: 1px solid var(--chapter-border); padding: 0.75rem; text-align: left; }
-.content th { background-color: var(--chapter-code-bg); font-weight: 600; }
+.content th, .content td { border: 1px solid var(--border); padding: 0.75rem; text-align: left; color: var(--text); }
+.content th { background-color: var(--code-bg); font-weight: 600; }
 
 /* Pagination styles */
 .pagination {
@@ -157,9 +145,9 @@ code{background:rgba(241,245,249,0.06);padding:2px 6px;border-radius:6px;font-fa
     align-items: center;
     margin-top: 4rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--chapter-border);
+    border-top: 1px solid var(--border);
 }
-.pagination a { color: var(--chapter-link); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
+.pagination a { color: var(--accent); text-decoration: none; font-weight: 500; font-size: 0.95rem; }
 .pagination a:hover { text-decoration: underline; }
 .pagination .prev { flex: 1; text-align: left; }
 .pagination .next { flex: 1; text-align: right; }
